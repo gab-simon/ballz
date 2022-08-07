@@ -84,6 +84,10 @@ int main(int argc, char *argv[])
             case ALLEGRO_KEY_DOWN:
                 key[KEY_DOWN] = true;
                 break;
+            case ALLEGRO_KEY_H:
+                al_clear_to_color(VERDE);
+                printf("abrir janela grafica dps... ");
+                break;
             case ALLEGRO_KEY_LEFT:
                 key[KEY_LEFT] = true;
                 break;
@@ -127,7 +131,7 @@ int main(int argc, char *argv[])
         if (redraw && al_is_event_queue_empty(win.event_queue))
         {
             redraw = false;
-            al_clear_to_color(AZUL);
+            al_clear_to_color(CINZA_ARDOSIA);
             al_draw_bitmap(bouncer_img, bouncer_x, bouncer_y, 0);
             al_draw_bitmap(texto_img, texto_x, texto_y, 0);
             al_flip_display();
