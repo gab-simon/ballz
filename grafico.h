@@ -1,9 +1,13 @@
 /* Allegro */
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_native_dialog.h>
+#include <time.h>
+#include <string.h>
 
 typedef struct {
   unsigned char R, G, B;
@@ -27,6 +31,9 @@ Window graphinit(int res_width, int res_height);
 
 /* Finaliza sistema grafico Allegro 5.0 */
 void graphdeinit(Window win);
+
+/* Inicializa */
+void mostra_jogo();
 
 /* Cria região em display para exibir imagem em ambiente ALLEGRO a partir de arquivo */
 ALLEGRO_BITMAP *imagemArq(char *nomeArqImg, int width, int height, Window win);

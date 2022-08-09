@@ -1,6 +1,6 @@
       PROGS = main
 
-  ALLEGRO = -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro
+  ALLEGRO = -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro  -lallegro_audio  -lallegro_acodec
 
      CFLAGS = -I .
      LFLAGS = $(ALLEGRO)
