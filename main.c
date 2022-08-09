@@ -13,8 +13,77 @@
 #define RES_WIDTH 800
 #define RES_HEIGHT 600
 
+#define BUFFER_W 320
+#define BUFFER_H 240
+
 #define BOUNCER_SIZE 80
 #define GRID 4
+
+long frames;
+long score;
+
+void must_init(bool test, const char *description)
+{
+    if(test) return;
+
+    printf("couldn't initialize %s\n", description);
+    exit(1);
+}
+
+// --- hud ---
+
+ALLEGRO_FONT *font;
+long score_display;
+
+void hud_init()
+{
+    font = al_create_builtin_font();
+    must_init(font, "font");
+
+    score_display = 0;
+}
+
+void hud_deinit()
+{
+    al_destroy_font(font);
+}
+
+void hud_update()
+{
+    if (frames % 2)
+        return;
+
+    for (long i = 5; i > 0; i--)
+    {
+        long diff = 1 << i;
+        if (score_display <= (score - diff))
+            score_display += diff;
+    }
+}
+
+void hud_draw()
+{
+
+    al_draw_textf(
+        font,
+        al_map_rgb_f(1, 1, 1),
+        1, 1,
+        0,
+        "%06ld",
+        score_display);
+
+    // int spacing = LIFE_W + 1;
+    // for(int i = 0; i < ship.lives; i++)
+    //     al_draw_bitmap(sprites.life, 1 + (i * spacing), 10, 0);
+
+    // if(ship.lives < 0)
+    al_draw_text(
+        font,
+        al_map_rgb_f(1, 1, 1),
+        BUFFER_W / 2, BUFFER_H / 2,
+        ALLEGRO_ALIGN_CENTER,
+        "G A M E  O V E R");
+}
 
 //-----------------------------------------------------------------------------
 
@@ -49,6 +118,8 @@ int main(int argc, char *argv[])
         ALLEGRO_EVENT ev;
         al_wait_for_event(win.event_queue, &ev);
 
+        hud_init();
+
         switch (ev.type)
         {
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -56,6 +127,7 @@ int main(int argc, char *argv[])
             break;
 
         case ALLEGRO_EVENT_TIMER:
+            hud_update();
             /* Para mover imagem com teclas de Dire��o */
             if (key[KEY_UP] && bouncer_y >= GRID)
                 bouncer_y -= GRID;
@@ -84,10 +156,6 @@ int main(int argc, char *argv[])
             case ALLEGRO_KEY_DOWN:
                 key[KEY_DOWN] = true;
                 break;
-            case ALLEGRO_KEY_H:
-                al_clear_to_color(VERDE);
-                printf("abrir janela grafica dps... ");
-                break;
             case ALLEGRO_KEY_LEFT:
                 key[KEY_LEFT] = true;
                 break;
@@ -112,6 +180,10 @@ int main(int argc, char *argv[])
             case ALLEGRO_KEY_RIGHT:
                 key[KEY_RIGHT] = false;
                 break;
+            case ALLEGRO_KEY_H:
+                al_clear_to_color(VERDE);
+                printf("abrir janela grafica dps... ");
+                break;
             case ALLEGRO_KEY_ESCAPE:
                 sair = true;
                 break;
@@ -135,9 +207,13 @@ int main(int argc, char *argv[])
             al_draw_bitmap(bouncer_img, bouncer_x, bouncer_y, 0);
             al_draw_bitmap(texto_img, texto_x, texto_y, 0);
             al_flip_display();
+            al_draw_rectangle(101, 101, 300, 175, al_map_rgb(0, 0, 0), 1);
+
+            hud_draw();
         }
     }
 
     al_destroy_bitmap(bouncer_img);
+    hud_deinit();
     graphdeinit(win);
 }
