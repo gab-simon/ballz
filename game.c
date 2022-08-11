@@ -25,6 +25,7 @@
 void mostra_jogo()
 {
     ALLEGRO_BITMAP *ball = al_load_bitmap("utils/ball.png");
+    ALLEGRO_BITMAP *cursor = al_load_bitmap("utils/cursor.png");
     ALLEGRO_BITMAP *background = al_load_bitmap("utils/bg.jpg");
     ALLEGRO_SAMPLE *som_pulo = al_load_sample("utils/sfx_wing.ogg");
     ALLEGRO_SAMPLE *batida = al_load_sample("utils/sfx_hit.ogg");
@@ -40,7 +41,7 @@ void mostra_jogo()
 
     srand(time(NULL));
 
-    bool sair = false;
+    bool sair = false, estado = false;
     int y = 100;
     float aceleracao = 0;
     double tempo_inicial, tempo_final;
@@ -51,8 +52,8 @@ void mostra_jogo()
         bouncer_dx = -GRID,
         bouncer_dy = GRID;
 
-    bouncer_x = RES_WIDTH / 2.0 - BOUNCER_SIZE / 2.0;
-    bouncer_y = RES_HEIGHT / 2.0 - BOUNCER_SIZE / 2.0;
+    bouncer_x = RES_WIDTH / 3.0 - BOUNCER_SIZE / 2.0;
+    bouncer_y = RES_HEIGHT / 3.0 - BOUNCER_SIZE / 2.0;
 
     int pontuacao = 0;
 
@@ -82,7 +83,6 @@ void mostra_jogo()
             aceleracao = 0;
             if (game_over == false)
             {
-                game_over = true;
                 al_play_sample(batida, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
         }
@@ -107,27 +107,41 @@ void mostra_jogo()
             }
             else if (evento.type == ALLEGRO_EVENT_TIMER)
             {
-                if (bouncer_x < 0 || bouncer_x > RES_WIDTH - 5)
-                    bouncer_dx = -bouncer_dx;
-
-                if (bouncer_y < 0 || bouncer_y > RES_HEIGHT - 5)
-                    bouncer_dy = -bouncer_dy;
-
-                bouncer_x += bouncer_dx;
-                bouncer_y += bouncer_dy;
-                if (game_over == false)
+                if (estado)
                 {
-                    // al_play_sample(ponto, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                    pontuacao++;
+                    if (bouncer_x < 0 || bouncer_x > RES_WIDTH - 5)
+                        bouncer_dx = -bouncer_dx;
+
+                    if (bouncer_y < 0 || bouncer_y > RES_HEIGHT - 5)
+                        bouncer_dy = -bouncer_dy;
+
+                    bouncer_x += bouncer_dx;
+                    bouncer_y += bouncer_dy;
+                    if (game_over == false)
+                    {
+                        // al_play_sample(ponto, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                        pontuacao++;
+                    }
+                    // if (bouncer_y > 360){
+                    //     estado = false;
+                    //     bouncer_x = RES_WIDTH / 2;
+                    //     bouncer_y = 280;
+                    // }
                 }
             }
             else if (evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
             {
+                estado = true;
                 if (game_over == false)
                 {
                     game_over = true;
                     al_play_sample(som_pulo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                 }
+            }
+            else if (evento.type == ALLEGRO_EVENT_MOUSE_AXES)
+            {
+                bouncer_x = evento.mouse.x;
+                bouncer_y = evento.mouse.y;
             }
 
             tempo_final = al_get_time() - tempo_inicial;

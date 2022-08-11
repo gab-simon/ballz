@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "grafico.h": "c",
-        "allegro_font.h": "c",
-        "game.h": "c"
-    }
-}
