@@ -14,7 +14,7 @@ debug: CFLAGS += -g -D__DEBUG__
 
 all debug: $(PROGS)
 
-$(PROGS) : % : %.o grafico.o
+$(PROGS) : % : %.o grafico.o game.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 clean:

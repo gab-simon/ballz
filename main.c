@@ -3,12 +3,16 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_font.h>
 #include <time.h>
 #include <string.h>
 
 /* Graficos */
 #include "grafico.h"
+
+/* Engine */
+#include "game.h"
 
 const int FPS = 60;
 
@@ -145,6 +149,8 @@ int main()
     al_install_audio();
     // Inicializar a parte de codecs de áudio
     al_init_acodec_addon();
+    // não sei
+    al_init_native_dialog_addon();
     // Reservar samples
     al_reserve_samples(4);
     // Inicializar o módulo de primitivas gráficas

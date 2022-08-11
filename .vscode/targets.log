@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Aug  9 10:58:35 2022
+# Make data base, printed on Wed Aug 10 23:26:24 2022
 
 # Variables
 
@@ -35,7 +35,7 @@ WINDOWPATH = 2
 # environment
 NVM_DIR = /home/simon/.nvm
 # environment
-TERMINATOR_UUID = urn:uuid:bc2a1cda-dc33-47bc-b922-9734edf76d54
+TERMINATOR_UUID = urn:uuid:3016df87-4e50-47c2-a4c1-ca03b42400ab
 # default
 MAKE_COMMAND := make
 # environment
@@ -107,13 +107,13 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 7777
+VSCODE_PID = 82644
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/pop-os:@/tmp/.ICE-unix/3694,unix/pop-os:/tmp/.ICE-unix/3694
+SESSION_MANAGER = local/pop-os:@/tmp/.ICE-unix/3548,unix/pop-os:/tmp/.ICE-unix/3548
 # automatic
 *F = $(notdir $*)
 # environment
@@ -145,7 +145,7 @@ SHLVL = 1
 # environment
 MAKELEVEL := 0
 # makefile (from 'Makefile', line 3)
-ALLEGRO = -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro
+ALLEGRO = -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro  -lallegro_audio  -lallegro_acodec
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
@@ -161,7 +161,7 @@ SNAP_USER_COMMON = /home/simon/snap/code/common
 # environment
 SNAP = /snap/code/103
 # environment
-INVOCATION_ID = 582ec0b4c7aa49e9b51a26fcdd795eac
+INVOCATION_ID = 67459e66a07149759eb985b8e8d712b3
 # environment
 SNAP_REVISION = 103
 # environment
@@ -195,7 +195,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := all
 # environment
-SYSTEMD_EXEC_PID = 3717
+SYSTEMD_EXEC_PID = 3567
 # environment
 DISPLAY = :1
 # environment
@@ -211,9 +211,9 @@ SNAP_DATA = /var/snap/code/103
 # environment
 SNAP_CONTEXT = yxFyl-CK4tkbZe2i_KDvdgs2ac4ABeJ7qLqKC3cyjKOUWnbUFVrO
 # environment
-MANAGERPID = 3504
+MANAGERPID = 3203
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 7343
+GIO_LAUNCHED_DESKTOP_FILE_PID = 23265
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # makefile (from 'Makefile', line 5)
@@ -227,7 +227,7 @@ GDK_PIXBUF_MODULE_FILE = /home/simon/snap/code/common/.cache/gdk-pixbuf-loaders.
 # environment
 NVM_CD_FLAGS = 
 # environment
-JOURNAL_STREAM = 8:47863
+JOURNAL_STREAM = 8:48559
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -276,10 +276,10 @@ XDG_MENU_PREFIX = gnome-
 PROGS = main
 # environment
 GDMSESSION = pop
- 
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
+ 
 # Load=134/1024=13%, Rehash=0, Collisions=5/167=3%
 
 # Pattern-specific Variable Values
@@ -288,9 +288,9 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 64769, inode 14159142): 20 files, no impossibilities.
+# . (device 64769, inode 14159142): 22 files, no impossibilities.
 
-# 20 files, no impossibilities in 1 directories.
+# 22 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -313,7 +313,7 @@ debug: main
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 18:29:05.9351344
+#  Last modified 2022-08-10 23:26:02.409440192
 #  File has been updated.
 #  Successfully updated.
 
@@ -324,6 +324,13 @@ clean:
 #  recipe to execute (from 'Makefile', line 21):
 	@echo "Limpando sujeira ..."
 	@rm -f *% *.bak *~
+
+# Not a target:
+game.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-10 23:25:16.84978483
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 .DEFAULT:
@@ -350,21 +357,21 @@ purge: clean
 # Not a target:
 grafico.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 18:29:05.9351344
+#  Last modified 2022-08-10 23:19:59.328281952
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
 main.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 22:54:41.676927658
+#  Last modified 2022-08-10 23:24:11.650283033
 #  File has been updated.
 #  Successfully updated.
 
-main: main.o grafico.o
+main: main.o grafico.o game.o
 #  Implicit rule search has not been done.
 #  Implicit/static pattern stem: 'main'
-#  Last modified 2022-08-07 22:54:47.74882351
+#  Last modified 2022-08-10 23:26:10.545378927
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 18):
@@ -373,7 +380,7 @@ main: main.o grafico.o
 grafico.o: grafico.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'grafico'
-#  Last modified 2022-08-07 18:53:52.098224324
+#  Last modified 2022-08-10 23:25:40.617604699
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 11):
@@ -382,26 +389,35 @@ grafico.o: grafico.c
 main.o: main.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'main'
-#  Last modified 2022-08-07 22:54:47.680824673
+#  Last modified 2022-08-10 23:25:40.565605094
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 11):
+	$(CC) $(CFLAGS) -c $<
+
+game.o: game.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'game'
+#  Last modified 2022-08-10 23:26:10.441379711
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 11):
 	$(CC) $(CFLAGS) -c $<
 
 # files hash-table stats:
-# Load=12/1024=1%, Rehash=0, Collisions=0/36=0%
+# Load=14/1024=1%, Rehash=0, Collisions=0/42=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 32 / storage = 252 B / avg = 7 B
-# current buf: size = 8162 B / used = 252 B / count = 32 / avg = 7 B
+# strcache buffers: 1 (0) / strings = 34 / storage = 266 B / avg = 7 B
+# current buf: size = 8162 B / used = 266 B / count = 34 / avg = 7 B
 
-# strcache performance: lookups = 56 / hit rate = 42%
+# strcache performance: lookups = 62 / hit rate = 45%
 # hash-table stats:
-# Load=32/8192=0%, Rehash=0, Collisions=0/56=0%
-# Finished Make data base on Tue Aug  9 10:58:35 2022
+# Load=34/8192=0%, Rehash=0, Collisions=0/62=0%
+# Finished Make data base on Wed Aug 10 23:26:24 2022
 
  

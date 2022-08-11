@@ -1,7 +1,5 @@
-make --dry-run --always-make --keep-going --print-directory
+make --dry-run --keep-going --print-directory
 make: Entering directory '/home/simon/Desktop/ufpr/prog/ballz'
-gcc -std=c99 -Wall -I . -c main.c
-gcc -std=c99 -Wall -I . -c grafico.c
-gcc -std=c99 -Wall -I . -o main main.o grafico.o -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro
+make: Nothing to be done for 'all'.
 make: Leaving directory '/home/simon/Desktop/ufpr/prog/ballz'
  
