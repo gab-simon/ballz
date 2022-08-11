@@ -11,7 +11,6 @@
 #include "grafico.h"
 
 const int FPS = 60;
-const int INTERVALO_CANOS = 240;
 
 void mostra_texto()
 {
@@ -48,7 +47,7 @@ struct squads atualizar_squad(struct squads c)
 
     if (c.x < -80)
     {
-        c.x = 640 + INTERVALO_CANOS;
+        c.x = 640 + 20;
         c.y = gera_altura_cano();
     }
 
@@ -62,18 +61,12 @@ struct squads atualizar_squad(struct squads c)
 
 void monta_menu(int opcao_selecionada)
 {
-    ALLEGRO_BITMAP *iniciar =
-        al_load_bitmap("utils/iniciar.png");
-    ALLEGRO_BITMAP *iniciar_pressed =
-        al_load_bitmap("utils/iniciar_pressed.png");
-    ALLEGRO_BITMAP *config =
-        al_load_bitmap("utils/config.png");
-    ALLEGRO_BITMAP *config_pressed =
-        al_load_bitmap("utils/config_pressed.png");
-    ALLEGRO_BITMAP *sair =
-        al_load_bitmap("utils/sair.png");
-    ALLEGRO_BITMAP *sair_pressed =
-        al_load_bitmap("utils/sair_pressed.png");
+    ALLEGRO_BITMAP *iniciar = al_load_bitmap("utils/iniciar.png");
+    ALLEGRO_BITMAP *iniciar_pressed = al_load_bitmap("utils/iniciar_pressed.png");
+    ALLEGRO_BITMAP *config = al_load_bitmap("utils/config.png");
+    ALLEGRO_BITMAP *config_pressed = al_load_bitmap("utils/config_pressed.png");
+    ALLEGRO_BITMAP *sair = al_load_bitmap("utils/sair.png");
+    ALLEGRO_BITMAP *sair_pressed = al_load_bitmap("utils/sair_pressed.png");
 
     // Primeira opção do menu (iniciar)
     if (opcao_selecionada == 1)
