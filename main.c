@@ -20,49 +20,6 @@ void mostra_texto()
 {
 }
 
-struct squads
-{
-    int x;
-    int y;
-};
-
-int atualizar_posicao(int aceleracao, int posicao)
-{
-    return posicao - aceleracao;
-}
-
-void desenha_squad(struct squads c)
-{
-    al_draw_filled_rectangle(c.x, 0, c.x + 80, c.y,
-                             al_map_rgb(0, 0xFF, 0));
-
-    al_draw_filled_rectangle(c.x, c.y + 120, c.x + 80, 480,
-                             al_map_rgb(0, 0xFF, 0));
-}
-
-int gera_altura_cano()
-{
-    return rand() % 350 + 10;
-}
-
-struct squads atualizar_squad(struct squads c)
-{
-    c.x = c.x - 2;
-
-    if (c.x < -80)
-    {
-        c.x = 640 + 20;
-        c.y = gera_altura_cano();
-    }
-
-    return c;
-}
-
-// bool verifica_colisao(int x, int y, struct squads c)
-// {
-
-// }
-
 void monta_menu(int opcao_selecionada)
 {
     ALLEGRO_BITMAP *iniciar = al_load_bitmap("utils/iniciar.png");
@@ -75,7 +32,7 @@ void monta_menu(int opcao_selecionada)
     // Primeira opção do menu (iniciar)
     if (opcao_selecionada == 1)
     {
-        al_draw_bitmap(iniciar_pressed, 350 - al_get_bitmap_width(iniciar_pressed) / 2,
+        al_draw_bitmap(iniciar_pressed, al_get_bitmap_width(iniciar_pressed) / 2,
                        240 - 10 -
                            al_get_bitmap_height(iniciar_pressed) -
                            al_get_bitmap_height(config) / 2,
@@ -83,7 +40,7 @@ void monta_menu(int opcao_selecionada)
     }
     else
     {
-        al_draw_bitmap(iniciar, 350 - al_get_bitmap_width(iniciar) / 2,
+        al_draw_bitmap(iniciar, al_get_bitmap_width(iniciar) / 2,
                        240 - 10 -
                            al_get_bitmap_height(iniciar) -
                            al_get_bitmap_height(config) / 2,
@@ -93,13 +50,13 @@ void monta_menu(int opcao_selecionada)
     // Segundo botão do menu (config)
     if (opcao_selecionada == 2)
     {
-        al_draw_bitmap(config_pressed, 350 - al_get_bitmap_width(config_pressed) / 2,
+        al_draw_bitmap(config_pressed, al_get_bitmap_width(config_pressed) / 2,
                        240 - al_get_bitmap_height(config_pressed) / 2,
                        0);
     }
     else
     {
-        al_draw_bitmap(config, 350 - al_get_bitmap_width(config) / 2,
+        al_draw_bitmap(config, al_get_bitmap_width(config) / 2,
                        240 - al_get_bitmap_height(config) / 2,
                        0);
     }
@@ -107,13 +64,13 @@ void monta_menu(int opcao_selecionada)
     // Terceiro botão do menu (sair)
     if (opcao_selecionada == 3)
     {
-        al_draw_bitmap(sair_pressed, 350 - al_get_bitmap_width(sair_pressed) / 2,
+        al_draw_bitmap(sair_pressed, al_get_bitmap_width(sair_pressed) / 2,
                        240 + 10 + al_get_bitmap_height(config) / 2,
                        0);
     }
     else
     {
-        al_draw_bitmap(sair, 350 - al_get_bitmap_width(sair_pressed) / 2,
+        al_draw_bitmap(sair, al_get_bitmap_width(sair_pressed) / 2,
                        240 + 10 + al_get_bitmap_height(config) / 2,
                        0);
     }
@@ -164,8 +121,8 @@ int main()
     // Carregar a imagem de fundo
     fundo = al_load_bitmap("utils/bg.jpg");
 
-    // Cria uma janela de 700x394
-    janela = al_create_display(700, 394);
+    // Cria uma janela de 394x700
+    janela = al_create_display(394, 700);
     al_set_window_title(janela, "Ballz - ProgII");
     // Pinta a tela de vermelho
     // al_clear_to_color(al_map_rgb(0xFF, 0x00, 0x00));

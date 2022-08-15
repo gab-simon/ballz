@@ -14,8 +14,8 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
-#define RES_WIDTH 700
-#define RES_HEIGHT 394
+#define RES_HEIGHT 700
+#define RES_WIDTH 394
 
 #define FPS 60
 
@@ -41,11 +41,8 @@ void mostra_jogo()
 
     srand(time(NULL));
 
-    bool sair = false, estado = false;
-    int y = 100;
-    float aceleracao = 0;
+    bool sair = false, estado = false, redraw = true;
     double tempo_inicial, tempo_final;
-    int raio = 5;
     bool game_over = false;
 
     float bouncer_x, bouncer_y,
@@ -63,50 +60,28 @@ void mostra_jogo()
         tempo_inicial = al_get_time();
 
         // al_clear_to_color(al_map_rgb(0, 0, 0));
-        al_draw_bitmap(background, 0, 0, 0);
-        al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
-        al_draw_bitmap(ball, bouncer_x, bouncer_y, 0);
 
-        if (game_over)
-        {
-            al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
-        }
-
-        al_flip_display();
-
-        // y = atualizar_posicao(aceleracao, y);
-        aceleracao -= 0.25;
-
-        if (y > 480 - raio)
-        {
-            y = 480 - raio;
-            aceleracao = 0;
-            if (game_over == false)
-            {
-                al_play_sample(batida, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-        }
-
-        if (y < raio)
-        {
-            y = raio;
-            aceleracao = 0;
-        }
+        // if (game_over)
+        // {
+        //     al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
+        // }
 
         while (!al_is_event_queue_empty(fila_eventos))
         {
             ALLEGRO_EVENT evento;
             al_wait_for_event(fila_eventos, &evento);
 
-            if (evento.type == ALLEGRO_EVENT_KEY_DOWN)
+            switch (evento.type)
             {
+            case ALLEGRO_EVENT_KEY_DOWN:
                 if (evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                 {
                     sair = true;
                 }
-            }
-            else if (evento.type == ALLEGRO_EVENT_TIMER)
-            {
+                break;
+
+            case ALLEGRO_EVENT_TIMER:
+
                 if (estado)
                 {
                     if (bouncer_x < 0 || bouncer_x > RES_WIDTH - 5)
@@ -128,20 +103,22 @@ void mostra_jogo()
                     //     bouncer_y = 280;
                     // }
                 }
-            }
-            else if (evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-            {
+                redraw = true;
+                break;
+
+            case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 estado = true;
                 if (game_over == false)
                 {
                     game_over = true;
                     al_play_sample(som_pulo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                 }
-            }
-            else if (evento.type == ALLEGRO_EVENT_MOUSE_AXES)
-            {
+                break;
+
+            case ALLEGRO_EVENT_MOUSE_AXES:
                 bouncer_x = evento.mouse.x;
                 bouncer_y = evento.mouse.y;
+                break;
             }
 
             tempo_final = al_get_time() - tempo_inicial;
@@ -149,6 +126,15 @@ void mostra_jogo()
             {
                 al_rest(1.0 / FPS - tempo_final);
             }
+        }
+
+        if (redraw && al_is_event_queue_empty(fila_eventos))
+        {
+            redraw = false;
+            al_draw_bitmap(background, 0, 0, 0);
+            al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
+            al_draw_bitmap(ball, bouncer_x, bouncer_y, 0);
+            al_flip_display();
         }
 
         // if (game_over == false)
