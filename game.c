@@ -14,17 +14,99 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
-#define RES_HEIGHT 700
-#define RES_WIDTH 394
+#define RES_HEIGHT 1000
+#define RES_WIDTH 500
 
 #define FPS 60
+#define BUFFER 15
 
 #define BOUNCER_SIZE 15
 #define GRID 15.0
 
+void must_init(bool test, const char *description)
+{
+    if(test) return;
+
+    printf("couldn't initialize %s\n", description);
+    exit(1);
+}
+
+
+//randomização
+int between(int lo, int hi)
+{
+    return lo + (rand() % (hi - lo));
+}
+
+typedef struct SPRITES
+{
+    ALLEGRO_BITMAP* _sheet;
+
+    ALLEGRO_BITMAP* ball;
+    ALLEGRO_BITMAP* life;
+
+    ALLEGRO_BITMAP* block[2];
+} SPRITES;
+SPRITES sprites;
+
+ALLEGRO_BITMAP* sprite_grab(int x, int y, int w, int h)
+{
+    ALLEGRO_BITMAP* sprite = al_create_sub_bitmap(sprites._sheet, x, y, w, h);
+    must_init(sprite, "sprite grab");
+    return sprite;
+}
+
+void sprites_init()
+{
+    sprites._sheet = al_load_bitmap("utils/spritesheet.png");
+    must_init(sprites._sheet, "spritesheet");
+
+    sprites.ball = sprite_grab(0, 0, 50, 60);
+
+    sprites.life = sprite_grab(0, 14, 6, 6);
+
+    sprites.block[0] = sprite_grab(0, 16, 32, 32);
+    sprites.block[1] = sprite_grab(8, 18, 23, 55);
+}
+
+void sprites_deinit()
+{
+    al_destroy_bitmap(sprites.ball);
+
+    al_destroy_bitmap(sprites.life);
+
+    al_destroy_bitmap(sprites.block[0]);
+    al_destroy_bitmap(sprites.block[1]);
+
+    al_destroy_bitmap(sprites._sheet);
+}
+
+//Blocks
+struct obj{int wx, wy, x, y, w, h;};
+struct obj
+    block[10][20],
+    life = {},
+    bola = {}
+;
+
+void blocks(){
+    int i, j, draw;
+
+    for (i = 0; i < 10; i++){
+        draw = 16;
+        for (j = 0; j < 20; j++){
+            // if(block[i][j].x != -500){
+                al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 32), block[i][j].wy + (i * 32), 0);
+            // }
+        }
+        draw += 32;
+    }
+}
+
 void mostra_jogo()
 {
     ALLEGRO_BITMAP *ball = al_load_bitmap("utils/ball.png");
+    ALLEGRO_BITMAP *spritess = al_load_bitmap("utils/blocks.png");
     ALLEGRO_BITMAP *cursor = al_load_bitmap("utils/cursor.png");
     ALLEGRO_BITMAP *background = al_load_bitmap("utils/bg.jpg");
     ALLEGRO_SAMPLE *som_pulo = al_load_sample("utils/sfx_wing.ogg");
@@ -40,6 +122,7 @@ void mostra_jogo()
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
 
     srand(time(NULL));
+    sprites_init();
 
     bool sair = false, estado = false, redraw = true;
     double tempo_inicial, tempo_final;
@@ -132,6 +215,7 @@ void mostra_jogo()
         {
             redraw = false;
             al_draw_bitmap(background, 0, 0, 0);
+            blocks();
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_bitmap(ball, bouncer_x, bouncer_y, 0);
             al_flip_display();
@@ -163,6 +247,7 @@ void mostra_jogo()
         //     al_rest(1.0 / FPS - tempo_final);
         // }
     }
+    sprites_deinit();
 
     al_destroy_timer(timer);
     al_destroy_font(fonte);
@@ -171,6 +256,7 @@ void mostra_jogo()
     al_destroy_sample(batida);
     al_destroy_sample(som_pulo);
     al_destroy_bitmap(ball);
+    al_destroy_bitmap(spritess);
     al_destroy_bitmap(background);
     al_destroy_event_queue(fila_eventos);
 }

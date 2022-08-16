@@ -121,8 +121,8 @@ int main()
     // Carregar a imagem de fundo
     fundo = al_load_bitmap("utils/bg.jpg");
 
-    // Cria uma janela de 394x700
-    janela = al_create_display(394, 700);
+    // Cria uma janela de 500x1000
+    janela = al_create_display(500, 1000);
     al_set_window_title(janela, "Ballz - ProgII");
     // Pinta a tela de vermelho
     // al_clear_to_color(al_map_rgb(0xFF, 0x00, 0x00));
