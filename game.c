@@ -23,7 +23,7 @@
 #define BOUNCER_SIZE 15
 #define GRID 15.0
 
-int out = -500;
+int out = -1000;
 
 void must_init(bool test, const char *description)
 {
@@ -67,7 +67,7 @@ void sprites_init()
 
     sprites.life = sprite_grab(0, 14, 6, 6);
 
-    sprites.block[0] = sprite_grab(1, 5, 16, 16);
+    sprites.block[0] = sprite_grab(1, 16, 32, 32);
     sprites.block[1] = sprite_grab(8, 18, 23, 55);
 }
 
@@ -100,18 +100,22 @@ int colidir(int Ax, int Ay, int Aw, int Ah, int Bx, int By, int Bw, int Bh)
     return 0;
 }
 
-void blocks()
+void blocks(int level, ALLEGRO_FONT *fonte)
 {
     int i, j, draw;
 
-    for (i = 0; i < 10; i++)
+    if(level > 10){
+        al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
+    }
+
+    for (i = 0; i < level; i++)
     {
         for (j = 0; j < 17; j++)
         {
             if (block[i][j].x != out)
             {
                 draw = between(0, 2);
-                al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 32), block[i][j].wy + (i * 32), 0);
+                al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 40), block[i][j].wy + (i * 40), 0);
                 if (colidir(block[i][j].x, block[i][j].y, block[i][j].w, block[i][j].h, ball.x, ball.y, ball.h, ball.w))
                 {
                     // if (bouncer_x + bouncer_y <= block[i][j].x || bouncer_x + 1 >= block[i][j].x + block[i][j].w)
@@ -152,13 +156,19 @@ void mostra_jogo()
     bool game_over = false;
 
     float bouncer_x, bouncer_y,
-        bouncer_dx = -GRID,
-        bouncer_dy = GRID;
+        bouncer_dx = GRID,
+        bouncer_dy = -GRID;
 
-    ball.x = RES_WIDTH / 3.0 - BOUNCER_SIZE / 2.0;
-    ball.y = RES_HEIGHT / 3.0 - BOUNCER_SIZE / 2.0;
+    ball.x = RES_WIDTH / 2;
+    ball.y = 900;
+
+    bouncer_x = RES_WIDTH / 2;
+    bouncer_y = 900;
 
     int pontuacao = 0;
+    int level = 1;
+
+    float a = 0, b = 0;
 
     al_start_timer(timer);
     while (sair == false)
@@ -203,11 +213,12 @@ void mostra_jogo()
                         // al_play_sample(ponto, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                         pontuacao++;
                     }
-                    // if (bouncer_y > 360){
-                    //     estado = false;
-                    //     bouncer_x = RES_WIDTH / 2;
-                    //     bouncer_y = 280;
-                    // }
+                    if (ball.y > 900){
+                        estado = false;
+                        level++;
+                        // bouncer_x = RES_WIDTH / 2;
+                        // bouncer_y = 280;
+                    }
                 }
                 redraw = true;
                 break;
@@ -222,8 +233,9 @@ void mostra_jogo()
                 break;
 
             case ALLEGRO_EVENT_MOUSE_AXES:
-                ball.x = evento.mouse.x;
-                ball.y = evento.mouse.y;
+                bouncer_x = evento.mouse.x;
+                bouncer_y = evento.mouse.y;
+
                 break;
             }
 
@@ -238,9 +250,10 @@ void mostra_jogo()
         {
             redraw = false;
             al_draw_bitmap(background, 0, 0, 0);
-            blocks();
+            blocks(level, fonte);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
+            al_draw_line(ball.x, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
             al_flip_display();
         }
 
