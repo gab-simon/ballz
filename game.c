@@ -15,8 +15,8 @@
 #include <allegro5/allegro_font.h>
 #include <math.h>
 
-#define RES_HEIGHT 1000
-#define RES_WIDTH 500
+#define RES_HEIGHT 800
+#define RES_WIDTH 550
 
 #define FPS 60
 #define BUFFER 15
@@ -114,10 +114,10 @@ void blocks(int level, ALLEGRO_FONT *fonte, int row)
     {
         for (j = 0; j < row; j++)
         {
-            if (block[i][j].x != out)
+            if (block[i][j].x != out && i > 0)
             {
                 al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 40), block[i][j].wy + (i * 40), 0);
-                if (colidir(block[i][j].x, block[i][j].y, block[i][j].w, block[i][j].h, ball.x, ball.y, ball.h, ball.w))
+                if (colidir(block[i][j].x, block[i][j].y, 32, 32, ball.x, ball.y, 16, 16))
                 {
                     // if (bouncer_x + bouncer_y <= block[i][j].x || bouncer_x + 1 >= block[i][j].x + block[i][j].w)
                     //     velx = -velx;
@@ -155,7 +155,7 @@ void mostra_jogo()
 {
     // ALLEGRO_BITMAP *ball = al_load_bitmap("utils/ball.png");
     ALLEGRO_BITMAP *spritess = al_load_bitmap("utils/blocks.png");
-    ALLEGRO_BITMAP *background = al_load_bitmap("utils/bg.jpg");
+    ALLEGRO_BITMAP *background = al_load_bitmap("utils/bg_game.png");
     ALLEGRO_SAMPLE *som_pulo = al_load_sample("utils/sfx_wing.ogg");
     ALLEGRO_SAMPLE *batida = al_load_sample("utils/sfx_hit.ogg");
     ALLEGRO_SAMPLE *ponto = al_load_sample("utils/sfx_point.ogg");
@@ -171,17 +171,14 @@ void mostra_jogo()
     srand(time(NULL));
     sprites_init();
 
-    bool sair = false, estado = false, redraw = true;
+    bool sair = false, estado = false, redraw = true, in_move = false;
     double tempo_inicial, tempo_final;
     bool game_over = false;
 
     float bouncer_x, bouncer_y;
 
     ball.x = RES_WIDTH / 2;
-    ball.y = 900;
-
-    bouncer_x = RES_WIDTH / 2;
-    bouncer_y = 900;
+    ball.y = 600;
 
     int pontuacao = 0;
     int level = 1;
@@ -218,22 +215,19 @@ void mostra_jogo()
                 redraw = true;
                 if (estado)
                 {
-                    dist = distancia(ball.x, ball.y, bouncer_x, bouncer_y);
-                    ball.wx = 16 * modulo(bouncer_x, ball.x, dist);
-                    ball.wy = 16 * modulo(bouncer_y, ball.y, dist);
-
-                    if (ball.x < 0 || ball.x > RES_HEIGHT - 5)
+                    if (ball.x < 0 || ball.x > RES_WIDTH - 5)
                         ball.wx = -ball.wx;
 
                     if (ball.y < 0 || ball.y > RES_HEIGHT - 5)
                         ball.wy = -ball.wy;
 
-                    if (ball.y + 32 / 2 > 0.9 * RES_HEIGHT && !estado)
+                    if (ball.y > 600)
                     {
+                        in_move = false;
                         estado = false;
                         ball.wx = 0.0;
                         ball.wy = 0.0;
-                        ball.y = RES_HEIGHT - 32 / 2;
+                        ball.y = 599;
                         level++;
                     }
 
@@ -250,9 +244,17 @@ void mostra_jogo()
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 estado = true;
-                level++;
-                row = between(1, 17);
 
+                if(!in_move){
+                    dist = distancia(ball.x, ball.y, bouncer_x, bouncer_y);
+                    ball.wx = 16 * modulo(bouncer_x, ball.x, dist);
+                    ball.wy = 16 * modulo(bouncer_y, ball.y, dist);
+                }
+
+
+                // row = between(1, 17);
+
+                in_move = true;
                 if (game_over == false)
                 {
                     game_over = true;
@@ -278,10 +280,12 @@ void mostra_jogo()
         {
             redraw = false;
             al_draw_bitmap(background, 0, 0, 0);
-            blocks(level, fonte, row);
+            blocks(level, fonte, 16);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
-            al_draw_line(ball.x, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
+            if(!in_move){
+                al_draw_line(ball.x+8, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
+            }
             al_flip_display();
         }
 

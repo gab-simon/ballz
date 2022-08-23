@@ -32,47 +32,31 @@ void monta_menu(int opcao_selecionada)
     // Primeira opção do menu (iniciar)
     if (opcao_selecionada == 1)
     {
-        al_draw_bitmap(iniciar_pressed, al_get_bitmap_width(iniciar_pressed) / 2,
-                       240 - 10 -
-                           al_get_bitmap_height(iniciar_pressed) -
-                           al_get_bitmap_height(config) / 2,
-                       0);
+        al_draw_bitmap(iniciar_pressed, (550 / 2) - al_get_bitmap_width(iniciar_pressed) / 2, 350 - al_get_bitmap_height(iniciar_pressed) - al_get_bitmap_height(config) / 2, 0);
     }
     else
     {
-        al_draw_bitmap(iniciar, al_get_bitmap_width(iniciar) / 2,
-                       240 - 10 -
-                           al_get_bitmap_height(iniciar) -
-                           al_get_bitmap_height(config) / 2,
-                       0);
+        al_draw_bitmap(iniciar, (550 / 2) - al_get_bitmap_width(iniciar_pressed) / 2, 350 - al_get_bitmap_height(iniciar) - al_get_bitmap_height(config) / 2, 0);
     }
 
     // Segundo botão do menu (config)
     if (opcao_selecionada == 2)
     {
-        al_draw_bitmap(config_pressed, al_get_bitmap_width(config_pressed) / 2,
-                       240 - al_get_bitmap_height(config_pressed) / 2,
-                       0);
+        al_draw_bitmap(config_pressed, (550 / 2) - al_get_bitmap_width(config_pressed) / 2, 370 - al_get_bitmap_height(config_pressed) / 2, 0);
     }
     else
     {
-        al_draw_bitmap(config, al_get_bitmap_width(config) / 2,
-                       240 - al_get_bitmap_height(config) / 2,
-                       0);
+        al_draw_bitmap(config, (550 / 2) - al_get_bitmap_width(config) / 2, 370 - al_get_bitmap_height(config) / 2, 0);
     }
 
     // Terceiro botão do menu (sair)
     if (opcao_selecionada == 3)
     {
-        al_draw_bitmap(sair_pressed, al_get_bitmap_width(sair_pressed) / 2,
-                       240 + 10 + al_get_bitmap_height(config) / 2,
-                       0);
+        al_draw_bitmap(sair_pressed, (550 / 2) - al_get_bitmap_width(sair_pressed) / 2, 390 + al_get_bitmap_height(config) / 2, 0);
     }
     else
     {
-        al_draw_bitmap(sair, al_get_bitmap_width(sair_pressed) / 2,
-                       240 + 10 + al_get_bitmap_height(config) / 2,
-                       0);
+        al_draw_bitmap(sair, (550 / 2) - al_get_bitmap_width(sair) / 2, 390 + al_get_bitmap_height(config) / 2, 0);
     }
 
     al_destroy_bitmap(config);
@@ -119,10 +103,10 @@ int main()
     // Cria a fila de eventos
     fila_eventos = al_create_event_queue();
     // Carregar a imagem de fundo
-    fundo = al_load_bitmap("utils/bg.jpg");
+    fundo = al_load_bitmap("utils/bg_menu.png");
 
-    // Cria uma janela de 500x1000
-    janela = al_create_display(500, 1000);
+    // Cria uma janela de 550x800
+    janela = al_create_display(550, 800);
     al_set_window_title(janela, "Ballz - ProgII");
     // Pinta a tela de vermelho
     // al_clear_to_color(al_map_rgb(0xFF, 0x00, 0x00));
