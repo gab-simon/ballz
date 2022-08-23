@@ -1,6 +1,6 @@
       PROGS = main
 
-  ALLEGRO = -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro  -lallegro_audio  -lallegro_acodec
+  ALLEGRO = -ldl -lm -lallegro_image  -lallegro_primitives  -lallegro_dialog  -lallegro_ttf -lallegro_font  -lallegro  -lallegro_audio  -lallegro_acodec
 
      CFLAGS = -I .
      LFLAGS = $(ALLEGRO)
@@ -8,7 +8,7 @@
        CC = gcc -std=c99 -Wall
 
 %.o:  %.c
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c -ldl -lm $<
 
 debug: CFLAGS += -g -D__DEBUG__
 

@@ -11,3 +11,5 @@
 
 /* Inicializa */
 void mostra_jogo();
+float distancia(float ball_x, float ball_y, float mouse_x, float mouse_y);
+float modulo(int x2, float x1, float distancia);

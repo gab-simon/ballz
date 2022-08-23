@@ -13,6 +13,7 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
+#include <math.h>
 
 #define RES_HEIGHT 1000
 #define RES_WIDTH 500
@@ -86,10 +87,10 @@ void sprites_deinit()
 // Blocks
 struct obj
 {
-    int wx, wy, x, y, w, h;
+    float wx, wy, x, y, w, h;
 };
 struct obj
-    block[10][17],
+    block[9][7],
     life = {},
     ball = {};
 
@@ -100,21 +101,21 @@ int colidir(int Ax, int Ay, int Aw, int Ah, int Bx, int By, int Bw, int Bh)
     return 0;
 }
 
-void blocks(int level, ALLEGRO_FONT *fonte)
+void blocks(int level, ALLEGRO_FONT *fonte, int row)
 {
-    int i, j, draw;
+    int i, j;
 
-    if(level > 10){
+    if (level > 9)
+    {
         al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
     }
 
     for (i = 0; i < level; i++)
     {
-        for (j = 0; j < 17; j++)
+        for (j = 0; j < row; j++)
         {
             if (block[i][j].x != out)
             {
-                draw = between(0, 2);
                 al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 40), block[i][j].wy + (i * 40), 0);
                 if (colidir(block[i][j].x, block[i][j].y, block[i][j].w, block[i][j].h, ball.x, ball.y, ball.h, ball.w))
                 {
@@ -130,11 +131,30 @@ void blocks(int level, ALLEGRO_FONT *fonte)
     }
 }
 
+float distancia(float ball_x, float ball_y, float mouse_x, float mouse_y)
+{
+    float sqr_X = mouse_x - ball_x;
+    sqr_X = sqr_X * sqr_X;
+
+    float sqr_Y = mouse_y - ball_y;
+    sqr_Y = sqr_Y * sqr_Y;
+
+    float distance = sqrt(sqr_X + sqr_Y);
+
+    return distance;
+}
+
+float modulo(int x2, float x1, float distancia)
+{
+    float result = (x2 - x1) / distancia;
+
+    return result;
+}
+
 void mostra_jogo()
 {
     // ALLEGRO_BITMAP *ball = al_load_bitmap("utils/ball.png");
     ALLEGRO_BITMAP *spritess = al_load_bitmap("utils/blocks.png");
-    ALLEGRO_BITMAP *cursor = al_load_bitmap("utils/cursor.png");
     ALLEGRO_BITMAP *background = al_load_bitmap("utils/bg.jpg");
     ALLEGRO_SAMPLE *som_pulo = al_load_sample("utils/sfx_wing.ogg");
     ALLEGRO_SAMPLE *batida = al_load_sample("utils/sfx_hit.ogg");
@@ -155,9 +175,7 @@ void mostra_jogo()
     double tempo_inicial, tempo_final;
     bool game_over = false;
 
-    float bouncer_x, bouncer_y,
-        bouncer_dx = GRID,
-        bouncer_dy = -GRID;
+    float bouncer_x, bouncer_y;
 
     ball.x = RES_WIDTH / 2;
     ball.y = 900;
@@ -167,8 +185,8 @@ void mostra_jogo()
 
     int pontuacao = 0;
     int level = 1;
-
-    float a = 0, b = 0;
+    int row = 0;
+    float dist;
 
     al_start_timer(timer);
     while (sair == false)
@@ -197,34 +215,44 @@ void mostra_jogo()
                 break;
 
             case ALLEGRO_EVENT_TIMER:
-
+                redraw = true;
                 if (estado)
                 {
-                    if (ball.x < 0 || ball.x > RES_WIDTH - 5)
-                        bouncer_dx = -bouncer_dx;
+                    dist = distancia(ball.x, ball.y, bouncer_x, bouncer_y);
+                    ball.wx = 16 * modulo(bouncer_x, ball.x, dist);
+                    ball.wy = 16 * modulo(bouncer_y, ball.y, dist);
+
+                    if (ball.x < 0 || ball.x > RES_HEIGHT - 5)
+                        ball.wx = -ball.wx;
 
                     if (ball.y < 0 || ball.y > RES_HEIGHT - 5)
-                        bouncer_dy = -bouncer_dy;
+                        ball.wy = -ball.wy;
 
-                    ball.x += bouncer_dx;
-                    ball.y += bouncer_dy;
+                    if (ball.y + 32 / 2 > 0.9 * RES_HEIGHT && !estado)
+                    {
+                        estado = false;
+                        ball.wx = 0.0;
+                        ball.wy = 0.0;
+                        ball.y = RES_HEIGHT - 32 / 2;
+                        level++;
+                    }
+
+                    ball.x = ball.x + ball.wx;
+                    ball.y = ball.y + ball.wy;
+
                     if (game_over == false)
                     {
                         // al_play_sample(ponto, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                         pontuacao++;
                     }
-                    if (ball.y > 900){
-                        estado = false;
-                        level++;
-                        // bouncer_x = RES_WIDTH / 2;
-                        // bouncer_y = 280;
-                    }
                 }
-                redraw = true;
                 break;
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 estado = true;
+                level++;
+                row = between(1, 17);
+
                 if (game_over == false)
                 {
                     game_over = true;
@@ -250,7 +278,7 @@ void mostra_jogo()
         {
             redraw = false;
             al_draw_bitmap(background, 0, 0, 0);
-            blocks(level, fonte);
+            blocks(level, fonte, row);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
             al_draw_line(ball.x, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
