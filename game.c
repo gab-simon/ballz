@@ -283,6 +283,7 @@ void mostra_jogo()
             blocks(level, fonte, 16);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
+            al_draw_text(fonte, AZUL, 250, 400, ALLEGRO_ALIGN_CENTRE, "pontuacao: ");
             if(!in_move){
                 al_draw_line(ball.x+8, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
             }
