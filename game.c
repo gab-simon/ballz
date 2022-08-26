@@ -26,6 +26,9 @@
 
 int out = -1000;
 
+
+enum {ARMING, SHOOTING, GAMEOVER, EXIT} state;
+
 void must_init(bool test, const char *description)
 {
     if (test)
@@ -102,7 +105,7 @@ int colidir(int Ax, int Ay, int Aw, int Ah, int Bx, int By, int Bw, int Bh)
     return 0;
 }
 
-void blocks(int level, ALLEGRO_FONT *fonte, int row, bool in_move)
+void blocks(int level, ALLEGRO_FONT *fonte, int row)
 {
     int i, j;
 
@@ -117,7 +120,7 @@ void blocks(int level, ALLEGRO_FONT *fonte, int row, bool in_move)
     {
         for (j = 0; j < 7; j++)
         {
-            if (block[i][j].x != out && i > 0 && in_move == true)
+            if (block[i][j].x != out && i > 0)
             {
                 block[i][j].life = between(0,50);
                 if (block[i][j].life > 30)
@@ -170,7 +173,6 @@ void mostra_jogo()
     ALLEGRO_SAMPLE *batida = al_load_sample("utils/sfx_hit.ogg");
     ALLEGRO_SAMPLE *ponto = al_load_sample("utils/sfx_point.ogg");
     ALLEGRO_FONT *fonte = al_load_font("utils/flappy_font.ttf", 48, 0);
-    ALLEGRO_FONT *fonte_game_over = al_load_font("utils/flappy_font.ttf", 200, 0);
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
 
     ALLEGRO_EVENT_QUEUE *fila_eventos = al_create_event_queue();
@@ -181,9 +183,8 @@ void mostra_jogo()
     srand(time(NULL));
     sprites_init();
 
-    bool sair = false, estado = false, redraw = true, in_move = false;
+    bool redraw = true;
     double tempo_inicial, tempo_final;
-    bool game_over = false;
 
     float bouncer_x, bouncer_y;
 
@@ -196,7 +197,7 @@ void mostra_jogo()
     float dist;
 
     al_start_timer(timer);
-    while (sair == false)
+    while (state != EXIT)
     {
         tempo_inicial = al_get_time();
 
@@ -217,13 +218,13 @@ void mostra_jogo()
             case ALLEGRO_EVENT_KEY_DOWN:
                 if (evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                 {
-                    sair = true;
+                   state = EXIT;
                 }
                 break;
 
             case ALLEGRO_EVENT_TIMER:
                 redraw = true;
-                if (estado)
+                if (state == SHOOTING)
                 {
                     if (ball.x < 0 || ball.x > RES_WIDTH - 5)
                         ball.wx = -ball.wx;
@@ -233,8 +234,7 @@ void mostra_jogo()
 
                     if (ball.y > 600)
                     {
-                        in_move = false;
-                        estado = false;
+                        state = ARMING;
                         ball.wx = 0.0;
                         ball.wy = 0.0;
                         ball.y = 599;
@@ -243,19 +243,11 @@ void mostra_jogo()
 
                     ball.x = ball.x + ball.wx;
                     ball.y = ball.y + ball.wy;
-
-                    if (game_over == false)
-                    {
-                        // al_play_sample(ponto, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                        pontuacao++;
-                    }
                 }
                 break;
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                estado = true;
-
-                if (!in_move)
+                if (state != SHOOTING)
                 {
                     dist = distancia(ball.x, ball.y, bouncer_x, bouncer_y);
                     ball.wx = 20 * modulo(bouncer_x, ball.x, dist);
@@ -264,12 +256,8 @@ void mostra_jogo()
 
                 // row = between(1, 17);
 
-                in_move = true;
-                if (game_over == false)
-                {
-                    game_over = true;
-                    al_play_sample(som_pulo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                }
+                state = SHOOTING;
+                al_play_sample(som_pulo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                 break;
 
             case ALLEGRO_EVENT_MOUSE_AXES:
@@ -292,49 +280,23 @@ void mostra_jogo()
         {
             redraw = false;
             al_draw_bitmap(background, 0, 0, 0);
-            blocks(level, fonte, 16, in_move);
+            blocks(level, fonte, 16);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_circle(ball.x, ball.y, 12, al_map_rgb_f(1, 0, 1), 20);
             // al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
             al_draw_text(fonte, AZUL, 250, 400, ALLEGRO_ALIGN_CENTRE, "pontuacao: ");
-            if (!in_move)
+            if (state == ARMING)
             {
                 al_draw_line(ball.x + 6, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
             }
             al_flip_display();
         }
-
-        // if (game_over == false)
-        // {
-        //     for (i = 0; i < 4; i++)
-        //     {
-        //         game_over = verifica_colisao(70, y, canos[i]);
-
-        //         if (game_over)
-        //         {
-        //             al_play_sample(batida, 1.0, 0.0, 1.0,
-        //                            ALLEGRO_PLAYMODE_ONCE, NULL);
-        //             break;
-        //         }
-        //     }
-
-        //     for (i = 0; i < 4; i++)
-        //     {
-        //         canos[i] = atualizar_cano(canos[i]);
-        //     }
-        // }
-
-        // tempo_final = al_get_time() - tempo_inicial;
-        // if (tempo_final < 1.0 / FPS)
-        // {
-        //     al_rest(1.0 / FPS - tempo_final);
-        // }
     }
+
     sprites_deinit();
 
     al_destroy_timer(timer);
     al_destroy_font(fonte);
-    al_destroy_font(fonte_game_over);
     al_destroy_sample(ponto);
     al_destroy_sample(batida);
     al_destroy_sample(som_pulo);
