@@ -13,6 +13,9 @@
 
 #include "grafico.h"
 
+#define COL 7
+#define ROW 9
+
 Window graphinit(int res_width, int res_height)
 {
     int i;
@@ -129,4 +132,37 @@ ALLEGRO_BITMAP *imagemTexto(char *texto, int *width, int *height, Window win)
     al_set_target_bitmap(al_get_backbuffer(win.display));
 
     return bmp;
+}
+
+void blocks_build(int blocks[][COL]) {
+	for (int i = 0; i < ROW; ++i) {
+		for (int j = 0; j < COL; ++j) {
+			blocks[i][j] = 2;
+		}
+	}
+}
+
+void blocks_draw(int blocks[][7]) {
+	int i, j;
+    ALLEGRO_FONT *fonte = al_load_font("utils/flappy_font.ttf", 48, 0);
+
+    // al_draw_filled_rectangle(0, 0, 64, 64, al_map_rgb(250,127,114));
+    // al_draw_filled_rectangle(64 + 5, 0, 128, 64, al_map_rgb(250,127,114));
+    // al_draw_filled_rectangle(128 + 5, 0, 192, 64, al_map_rgb(250,127,114));
+
+	for (i = 0; i < ROW; ++i) {
+		for (j = 0; j < COL; ++j) {
+			if (blocks[i][j] > 0) {
+				al_draw_filled_rectangle((64 * j) + 5, (64 * i) + 5, (64 * j) + 64, (64 * i) + 64, al_map_rgb(250,127,114));
+				char text[10];
+				int textOffset = al_get_font_line_height(fonte)/2;
+				sprintf(text, "%d", blocks[i][j]);
+				al_draw_text(fonte, BRANCO_ANTIGO, 64 * j / 2, 64/ 2 + 5, ALLEGRO_ALIGN_CENTER, text);
+			}
+			if (blocks[i][j] == -1) {
+				al_draw_filled_circle(64 * j, 64 * i + 5, 12, BRANCO);
+				al_draw_circle(64 * j, 64 * i + 5, 12 + 10, BRANCO, 5);
+			}
+		}
+	}
 }

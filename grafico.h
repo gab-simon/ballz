@@ -9,6 +9,9 @@
 #include <time.h>
 #include <string.h>
 
+#define COL 7
+#define ROW 9
+
 typedef struct {
   unsigned char R, G, B;
 } Pixel;
@@ -40,6 +43,10 @@ ALLEGRO_BITMAP *imagemArq(char *nomeArqImg, int width, int height, Window win);
 
 /* Cria região em display para exibir Texto em ambiente ALLEGRO */
 ALLEGRO_BITMAP *imagemTexto(char *texto, int *width, int *height, Window win);
+
+void blocks_build(int blocks[][COL]);
+
+void blocks_draw(int blocks[][COL]);
 
 /* Lista de cores 
    Fonte: http://pt.wikipedia.org/wiki/Anexo:Lista_de_cores

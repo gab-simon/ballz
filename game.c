@@ -24,8 +24,10 @@
 #define BOUNCER_SIZE 15
 #define GRID 15.0
 
-int out = -1000;
+#define COL 7
+#define ROW 9
 
+int out = -1000;
 
 enum {ARMING, SHOOTING, GAMEOVER, EXIT} state;
 
@@ -94,7 +96,6 @@ struct obj
     bool show;
 };
 struct obj
-    block[9][7],
     life = {},
     ball = {};
 
@@ -105,44 +106,44 @@ int colidir(int Ax, int Ay, int Aw, int Ah, int Bx, int By, int Bw, int Bh)
     return 0;
 }
 
-void blocks(int level, ALLEGRO_FONT *fonte, int row)
-{
-    int i, j;
+// void blocks(int level, ALLEGRO_FONT *fonte, int row)
+// {
+//     int i, j;
 
-    if (level > 9)
-    {
-        al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
-    }
+//     if (level > 9)
+//     {
+//         al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
+//     }
 
-    block[1][2].life = 30;
+//     block[1][2].life = 30;
 
-    for (i = 0; i < 1 + level; i++)
-    {
-        for (j = 0; j < 7; j++)
-        {
-            if (block[i][j].x != out && i > 0)
-            {
-                block[i][j].life = between(0,50);
-                if (block[i][j].life > 30)
-                {
-                    printf("| %d |", block[level][j].life);
-                    al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 70), block[i][j].wy + (i * 70), 0);
+//     for (i = 0; i < 1 + level; i++)
+//     {
+//         for (j = 0; j < 7; j++)
+//         {
+//             if (block[i][j].x != out && i > 0)
+//             {
+//                 block[i][j].life = between(0,50);
+//                 if (block[i][j].life > 30)
+//                 {
+//                     printf("| %d |", block[level][j].life);
+//                     al_draw_bitmap(sprites.block[0], block[i][j].wx + (j * 70), block[i][j].wy + (i * 70), 0);
 
-                    if (colidir(block[i][j].x, block[i][j].y, 32, 32, ball.x, ball.y, 16, 16))
-                    {
-                        // if (bouncer_x + bouncer_y <= block[i][j].x || bouncer_x + 1 >= block[i][j].x + block[i][j].w)
-                        //     velx = -velx;
-                        // else
-                        //     vely = -vely;
-                        block[i][j].x = out;
-                        // pontos += 10;
-                    }
-                }
-            }
-        }
-        printf("\n");
-    }
-}
+//                     if (colidir(block[i][j].x, block[i][j].y, 32, 32, ball.x, ball.y, 16, 16))
+//                     {
+//                         // if (bouncer_x + bouncer_y <= block[i][j].x || bouncer_x + 1 >= block[i][j].x + block[i][j].w)
+//                         //     velx = -velx;
+//                         // else
+//                         //     vely = -vely;
+//                         block[i][j].x = out;
+//                         // pontos += 10;
+//                     }
+//                 }
+//             }
+//         }
+//         printf("\n");
+//     }
+// }
 
 float distancia(float ball_x, float ball_y, float mouse_x, float mouse_y)
 {
@@ -191,9 +192,10 @@ void mostra_jogo()
     ball.x = RES_WIDTH / 2;
     ball.y = 600;
 
+    int blocks[ROW][COL];
+
     int pontuacao = 0;
     int level = 1;
-    int row = 0;
     float dist;
 
     al_start_timer(timer);
@@ -201,12 +203,7 @@ void mostra_jogo()
     {
         tempo_inicial = al_get_time();
 
-        // al_clear_to_color(al_map_rgb(0, 0, 0));
-
-        // if (game_over)
-        // {
-        //     al_draw_text(fonte, al_map_rgb(0xFF, 0xFF, 0), 320, 240, ALLEGRO_ALIGN_CENTER, "Game Over");
-        // }
+        blocks_build(blocks);
 
         while (!al_is_event_queue_empty(fila_eventos))
         {
@@ -280,7 +277,7 @@ void mostra_jogo()
         {
             redraw = false;
             al_draw_bitmap(background, 0, 0, 0);
-            blocks(level, fonte, 16);
+            blocks_draw(blocks);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
             al_draw_circle(ball.x, ball.y, 12, al_map_rgb_f(1, 0, 1), 20);
             // al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
