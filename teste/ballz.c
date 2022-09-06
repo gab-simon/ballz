@@ -67,8 +67,6 @@ int main(int argc, char *argv[])
 		int dist_y;
 		float dist;
 
-		// game.STATES;
-
 		switch (game.STATES)
 		{
 		case MENU:
@@ -81,9 +79,7 @@ int main(int argc, char *argv[])
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
 				if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
-				{
 					game.STATES = EXIT;
-				}
 			}
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
@@ -180,6 +176,14 @@ int main(int argc, char *argv[])
 			break;
 
 		case WAITING:
+			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			{
+				if (ev.keyboard.keycode == ALLEGRO_KEY_H)
+				{
+					al_show_native_message_box(win.display, "Instruções", "TEste textoo textooo uma um texto aqui um textooo", "textooo", NULL, NULL);
+				}
+			}
+
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 			{
 				mouse_down = ev.mouse;
@@ -189,8 +193,8 @@ int main(int argc, char *argv[])
 			break;
 
 		case AIMING:
-			dist_x = MOUSE_SENSIBILITY * (mouse_down.x - ev.mouse.x);
-			dist_y = MOUSE_SENSIBILITY * (mouse_down.y - ev.mouse.y);
+			dist_x = (mouse_down.x - ev.mouse.x);
+			dist_y = (mouse_down.y - ev.mouse.y);
 			dist = sqrt(pow(dist_x, 2) + pow(dist_y, 2));
 
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)

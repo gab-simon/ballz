@@ -41,7 +41,7 @@ window graph_init(int res_width, int res_height)
 	al_start_timer(win.timer);
 
 	char font_path[100];
-	sprintf(font_path, "%s/resources/dimitri/Minecraft.ttf", al_get_current_directory());
+	sprintf(font_path, "%s/utils/font/Minecraft.ttf", al_get_current_directory());
 	printf("font_path: %s\n", font_path);
 
 	fonts_t *fonts = malloc(sizeof(fonts_t));
@@ -71,23 +71,23 @@ window graph_init(int res_width, int res_height)
 
 void draw_menu(window *win)
 {
-	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("resources/utils/bg_menu.png");
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/bg_menu.png");
 	al_draw_bitmap(bg_menu, 0, 0, 0);
 
 	al_draw_text(win->fonts->title_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTER, "BALLz");
 
-	ALLEGRO_BITMAP *button = al_load_bitmap("resources/button.png");
+	ALLEGRO_BITMAP *button = al_load_bitmap("utils/button.png");
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.8, 0);
 
-	al_draw_text(win->fonts->medium_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.6 + 7, ALLEGRO_ALIGN_CENTER, "Play");
+	al_draw_text(win->fonts->medium_font, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.63, ALLEGRO_ALIGN_CENTER, "Play");
 
-	al_draw_text(win->fonts->medium_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.8 + 7, ALLEGRO_ALIGN_CENTER, "INFO");
+	al_draw_text(win->fonts->medium_font, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.83, ALLEGRO_ALIGN_CENTER, "Info");
 
 	al_flip_display();
 }
 
-void draw_squares(window *win, int squares[][7], float offsetY)
+void show_blocks(window *win, int squares[][7], float offsetY)
 {
 	float l = calc_square_side(win->disp_data.width);
 	int i, j;
@@ -97,7 +97,7 @@ void draw_squares(window *win, int squares[][7], float offsetY)
 		{
 			if (squares[i][j] > 0)
 			{
-				al_draw_filled_rectangle(calc_square_i_x(j, l), calc_square_i_y(i, l) + offsetY, calc_square_f_x(j, l), calc_square_f_y(i, l) + offsetY, al_map_rgb(240 - 3 * squares[i][j] % 80, 172 - 3 * squares[i][j] % 57, 46 + 3 * squares[i][j] % 70));
+				al_draw_filled_rectangle((77 * j) + 10, (77 * i) + 10, (77 * j) + 77, (77 * i) + 77, al_map_rgb(250,127,114));
 				char text[10];
 				int textOffset = al_get_font_line_height(win->fonts->small_font) / 2;
 				sprintf(text, "%d", squares[i][j]);
@@ -105,8 +105,8 @@ void draw_squares(window *win, int squares[][7], float offsetY)
 			}
 			if (squares[i][j] == -1)
 			{
-				al_draw_filled_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, BOUNCER_RADIUS, BRANCO);
-				al_draw_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, BOUNCER_RADIUS + 10, BRANCO, 5);
+				al_draw_filled_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, 8, BRANCO);
+				al_draw_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, BOUNCER_RADIUS + 5, BRANCO, 2);
 			}
 		}
 	}
@@ -123,17 +123,17 @@ void draw_bouncers_count(window *win, game_t *game)
 {
 	char text[20];
 	sprintf(text, "x%d", game->bouncers - game->thrown_bouncers);
-	al_draw_text(win->fonts->small_font, CINZA, game->shooting_x - BOUNCER_RADIUS - 20, game->shooting_y - BOUNCER_RADIUS - 30, ALLEGRO_ALIGN_LEFT, text);
+	al_draw_text(win->fonts->small_font, BRANCO, game->shooting_x - BOUNCER_RADIUS - 20, game->shooting_y - BOUNCER_RADIUS - 30, ALLEGRO_ALIGN_LEFT, text);
 }
 
 void draw_wait(window *win, bouncer_t *bouncer, int squares[][7], game_t *game)
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(bouncer->x, bouncer->y, BOUNCER_RADIUS, BRANCO);
-		draw_squares(win, squares, 0);
+		show_blocks(win, squares, 0);
 		draw_score(win, game);
 		draw_bouncers_count(win, game);
 		al_flip_display();
@@ -144,10 +144,10 @@ void draw_setup(window *win, bouncer_t *bouncer, int squares[][COL], float offse
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(bouncer->x, bouncer->y, BOUNCER_RADIUS, BRANCO);
-		draw_squares(win, squares, offsetY);
+		show_blocks(win, squares, offsetY);
 		draw_score(win, game);
 		draw_bouncers_count(win, game);
 		al_flip_display();
@@ -158,27 +158,13 @@ void draw_aim(window *win, bouncer_t *bouncer, float distX, float distY, float d
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(bouncer->x, bouncer->y, BOUNCER_RADIUS, BRANCO);
-		draw_squares(win, squares, 0);
+		show_blocks(win, squares, 0);
 		draw_bouncers_count(win, game);
 
-		float size = min(win->disp_data.height * 0.33 + dist, win->disp_data.height * 0.8);
-		float spacing = (size - 80) / 16;
-		float position = size;
-
-		al_draw_line(bouncer->x, bouncer->y, distX, distY, BRANCO, 2);
-		position -= spacing;
-
-		al_draw_filled_triangle(bouncer->x + (BOUNCER_RADIUS + 70) * distX / dist,
-								bouncer->y + (BOUNCER_RADIUS + 70) * distY / dist,
-
-								bouncer->x + (BOUNCER_RADIUS + 5) * distX / dist + 7 * distY / dist,
-								bouncer->y + (BOUNCER_RADIUS + 5) * distY / dist - 7 * distX / dist,
-
-								bouncer->x + (BOUNCER_RADIUS + 5) * distX / dist - 7 * distY / dist,
-								bouncer->y + (BOUNCER_RADIUS + 5) * distY / dist + 7 * distX / dist, BRANCO);
+		al_draw_line(bouncer->x, bouncer->y, bouncer->x + (BOUNCER_RADIUS + 400) * distX / dist, bouncer->y + (BOUNCER_RADIUS + 400) * distY / dist, BRANCO, 2);
 
 		draw_score(win, game);
 		al_flip_display();
@@ -189,7 +175,7 @@ void draw_shoot(window *win, bouncer_t **bouncers, int bouncersCount, int square
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		for (int i = 0; i < bouncersCount; i++)
 		{
@@ -202,7 +188,7 @@ void draw_shoot(window *win, bouncer_t **bouncers, int bouncersCount, int square
 		{
 			draw_bouncers_count(win, game);
 		}
-		draw_squares(win, squares, 0);
+		show_blocks(win, squares, 0);
 		draw_score(win, game);
 		al_flip_display();
 	}
@@ -214,7 +200,7 @@ void draw_gameover(window *win, game_t *game)
 	{
 		char text[20];
 
-		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("resources/utils/bg_menu.png");
+		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/bg_menu.png");
 		al_draw_bitmap(bg_menu, 0, 0, 0);
 		
 		al_draw_text(win->fonts->big_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
@@ -226,7 +212,7 @@ void draw_gameover(window *win, game_t *game)
 			al_draw_text(win->fonts->small_font, VERDE_CLARO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTRE, "New Highscore!");
 		}
 
-		ALLEGRO_BITMAP *button = al_load_bitmap("resources/button.png");
+		ALLEGRO_BITMAP *button = al_load_bitmap("utils/button.png");
 		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
 		al_draw_text(win->fonts->medium_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.6 + 7, ALLEGRO_ALIGN_CENTER, "Play");
 
