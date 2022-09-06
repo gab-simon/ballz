@@ -44,6 +44,17 @@ ALLEGRO_BITMAP *imagemArq(char *nomeArqImg, int width, int height, Window win);
 /* Cria região em display para exibir Texto em ambiente ALLEGRO */
 ALLEGRO_BITMAP *imagemTexto(char *texto, int *width, int *height, Window win);
 
+typedef struct bouncer bouncer_t;
+struct bouncer {
+	float x;
+	float y;
+
+	float dx;
+	float dy;
+};
+
+typedef struct game game_t;
+
 void blocks_build(int blocks[][COL]);
 
 void blocks_draw(int blocks[][COL]);

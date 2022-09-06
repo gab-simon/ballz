@@ -193,6 +193,7 @@ void mostra_jogo()
     ball.y = 600;
 
     int blocks[ROW][COL];
+    bouncer_t **bouncers;
 
     int pontuacao = 0;
     int level = 1;
@@ -204,6 +205,7 @@ void mostra_jogo()
         tempo_inicial = al_get_time();
 
         blocks_build(blocks);
+        setup_bouncers(&bouncers, RES_WIDTH, 5);
 
         while (!al_is_event_queue_empty(fila_eventos))
         {
@@ -221,6 +223,11 @@ void mostra_jogo()
 
             case ALLEGRO_EVENT_TIMER:
                 redraw = true;
+                for (int i = 0; i < 5; i++) {
+						bouncers[i] = createBouncer(ball.x, ball.y);
+					}
+
+
                 if (state == SHOOTING)
                 {
                     if (ball.x < 0 || ball.x > RES_WIDTH - 5)
@@ -279,12 +286,12 @@ void mostra_jogo()
             al_draw_bitmap(background, 0, 0, 0);
             blocks_draw(blocks);
             al_draw_textf(fonte, al_map_rgb(0xFF, 0xFF, 0xFF), 10, 10, ALLEGRO_ALIGN_LEFT, "%i", pontuacao);
-            al_draw_circle(ball.x, ball.y, 12, al_map_rgb_f(1, 0, 1), 20);
+            al_draw_circle(ball.x, ball.y, 8, al_map_rgb_f(1, 0, 1), 20);
             // al_draw_bitmap(sprites.ball, ball.x, ball.y, 0);
             al_draw_text(fonte, AZUL, 250, 400, ALLEGRO_ALIGN_CENTRE, "pontuacao: ");
             if (state == ARMING)
             {
-                al_draw_line(ball.x + 6, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
+                al_draw_line(ball.x + 4, ball.y, bouncer_x, bouncer_y, al_map_rgb_f(1, 0, 0), 2);
             }
             al_flip_display();
         }

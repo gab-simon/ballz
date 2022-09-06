@@ -134,6 +134,16 @@ ALLEGRO_BITMAP *imagemTexto(char *texto, int *width, int *height, Window win)
     return bmp;
 }
 
+bouncer_t *createBouncer(float x, float y) {
+	bouncer_t *bouncer = malloc(sizeof(bouncer_t));
+	bouncer->dx = 0;
+	bouncer->dy = 0;
+	bouncer->x = x;
+	bouncer->y = y;
+
+	return bouncer;
+}
+
 void blocks_build(int blocks[][COL]) {
 	for (int i = 0; i < ROW; ++i) {
 		for (int j = 0; j < COL; ++j) {
@@ -157,7 +167,7 @@ void blocks_draw(int blocks[][7]) {
 				char text[10];
 				int textOffset = al_get_font_line_height(fonte)/2;
 				sprintf(text, "%d", blocks[i][j]);
-				al_draw_text(fonte, BRANCO_ANTIGO, 64 * j / 2, 64/ 2 + 5, ALLEGRO_ALIGN_CENTER, text);
+				al_draw_text(fonte, BRANCO_ANTIGO, 64 * j, 64 * i, ALLEGRO_ALIGN_CENTER, text);
 			}
 			if (blocks[i][j] == -1) {
 				al_draw_filled_circle(64 * j, 64 * i + 5, 12, BRANCO);
@@ -165,4 +175,9 @@ void blocks_draw(int blocks[][7]) {
 			}
 		}
 	}
+}
+
+void setup_bouncers(bouncer_t ***bouncers, float dispWidth, float shooting_y) {
+	*bouncers = calloc(sizeof(bouncer_t), 1);
+	*bouncers[0] = createBouncer(dispWidth * 0.5, shooting_y);
 }
