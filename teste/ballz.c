@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
 	bool menu_drew = false;
 	bool can_shoot = false;
-	bool added_new_squares = false;
+	bool new_blocks = false;
 	bool new_shots = false;
 
 	int launch_interval = 0;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
 	ALLEGRO_MOUSE_EVENT mouse_down;
 
-	float square_side = calc_square_side(RES_WIDTH);
+	float square_side = RES_WIDTH / 7.8;
 
 	game_t game;
 	int squares[ROW][COL];
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
 					menu_drew = false;
 					can_shoot = false;
-					added_new_squares = false;
+					new_blocks = false;
 					new_shots = false;
 
 					launch_interval = 0;
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case SETUP:
-			if (!added_new_squares)
+			if (!new_blocks)
 			{
 				game.score++;
 				if (game.score >= game.highscore)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 					int newBallPosition = rand() % COL;
 					squares[0][newBallPosition] = -1;
 				}
-				added_new_squares = true;
+				new_blocks = true;
 			}
 			if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 						}
 						draw_gameover(&win, &game);
 					};
-					added_new_squares = false;
+					new_blocks = false;
 				};
 			}
 			break;
@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
 
 					menu_drew = false;
 					can_shoot = false;
-					added_new_squares = false;
+					new_blocks = false;
 					new_shots = false;
 
 					launch_interval = 0;

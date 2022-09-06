@@ -29,7 +29,6 @@ float calc_square_f_y(float i, float l) {
     return i * 1.1*l + l;
 }
 
-
 int calcjMatrixPositioni(float xi, float l) {
     return (xi/(1.1*l)) - 1/11;
 }
