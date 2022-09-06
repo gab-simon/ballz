@@ -15,8 +15,6 @@
 #define RES_HEIGHT 800
 #define RES_WIDTH 600
 
-
-
 int main(int argc, char *argv[])
 {
 	window win = graph_init(RES_WIDTH, RES_HEIGHT);
@@ -24,12 +22,10 @@ int main(int argc, char *argv[])
 
 	int i, j;
 
-	bool quit = false;
 	bool menu_drew = false;
-	bool info_drew = false;
 	bool can_shoot = false;
 	bool added_new_squares = false;
-	bool will_add_new_bouncers = false;
+	bool new_shots = false;
 
 	int launch_interval = 0;
 	int launch_index = 0;
@@ -60,7 +56,9 @@ int main(int argc, char *argv[])
 	}
 	fclose(score_file);
 
-	while (!quit)
+	game.STATES = MENU;
+
+	while (game.STATES != EXIT)
 	{
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(win.event_queue, &ev);
@@ -69,7 +67,9 @@ int main(int argc, char *argv[])
 		int dist_y;
 		float dist;
 
-		switch (state)
+		// game.STATES;
+
+		switch (game.STATES)
 		{
 		case MENU:
 			if (!menu_drew)
@@ -82,14 +82,14 @@ int main(int argc, char *argv[])
 			{
 				if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
 				{
-					quit = true;
+					game.STATES = EXIT;
 				}
 			}
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 80)
 				{
-					state = SETUP;
+					game.STATES = SETUP;
 					setup_game(&game, RES_WIDTH);
 
 					setup_squares(squares);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 					menu_drew = false;
 					can_shoot = false;
 					added_new_squares = false;
-					will_add_new_bouncers = false;
+					new_shots = false;
 
 					launch_interval = 0;
 					launch_index = 0;
@@ -144,10 +144,10 @@ int main(int argc, char *argv[])
 					{
 						if (squares[ROW - 1][j] > 0)
 						{
-							state = GAMEOVER;
+							game.STATES = GAMEOVER;
 						}
 					}
-					if (state != GAMEOVER)
+					if (game.STATES != GAMEOVER)
 					{
 						for (i = ROW - 1; i > 0; i--)
 						{
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 						{
 							squares[0][j] = 0;
 						};
-						state = WAITING;
+						game.STATES = WAITING;
 						draw_wait(&win, bouncers[0], squares, &game);
 					}
 					else
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 			{
 				mouse_down = ev.mouse;
 
-				state = AIMING;
+				game.STATES = AIMING;
 			}
 			break;
 
@@ -200,12 +200,12 @@ int main(int argc, char *argv[])
 					game.dx = SPEED_FACTOR * (dist_x) / dist;
 					game.dy = SPEED_FACTOR * (dist_y) / dist;
 
-					state = SHOOTING;
+					game.STATES = SHOOTING;
 					can_shoot = false;
 				}
 				else
 				{
-					state = WAITING;
+					game.STATES = WAITING;
 				}
 			}
 			else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 		case SHOOTING:
 			if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
-				if (will_add_new_bouncers)
+				if (new_shots)
 				{
 					bouncer_t **new_bouncers = realloc(bouncers, sizeof(bouncer_t) * game.bouncers);
 					if (new_bouncers == NULL)
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 					}
 
 					new_bouncers_count = 0;
-					will_add_new_bouncers = false;
+					new_shots = false;
 				}
 
 				launch_interval++;
@@ -358,8 +358,8 @@ int main(int argc, char *argv[])
 
 								if (arrival_counter == game.bouncers && i == game.bouncers - 1)
 								{
-									state = SETUP;
-									will_add_new_bouncers = (new_bouncers_count > 0);
+									game.STATES = SETUP;
+									new_shots = (new_bouncers_count > 0);
 									game.bouncers += new_bouncers_count;
 
 									launch_index = 0;
@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
 			{
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 80)
 				{
-					state = SETUP;
+					game.STATES = SETUP;
 					setup_game(&game, RES_WIDTH);
 
 					setup_squares(squares);
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
 					menu_drew = false;
 					can_shoot = false;
 					added_new_squares = false;
-					will_add_new_bouncers = false;
+					new_shots = false;
 
 					launch_interval = 0;
 					launch_index = 0;
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.75 && ev.mouse.y < win.disp_data.height * 0.75 + 80)
 				{
 					menu_drew = false;
-					state = MENU;
+					game.STATES = MENU;
 				}
 			}
 			break;
@@ -412,11 +412,11 @@ int main(int argc, char *argv[])
 
 		if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
-			quit = true;
-			destroy_bouncers(bouncers, &game);
+			game.STATES = EXIT;
 		}
 	}
 
+	destroy_bouncers(bouncers, &game);
 	graph_deinit(win);
 	return 0;
 }

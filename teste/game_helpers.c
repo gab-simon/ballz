@@ -57,7 +57,7 @@ bouncer_t *createBouncer(float x, float y) {
 	return bouncer;
 }
 
-void setup_game(ballz_t *game, float dispWidth) {
+void setup_game(game_t *game, float dispWidth) {
 	game->score = 0;
 	game->bouncers = 1;
     game->thrown_bouncers = 0;
@@ -79,7 +79,7 @@ void setup_bouncers(bouncer_t ***bouncers, float dispWidth, float shooting_y) {
 	*bouncers[0] = createBouncer(dispWidth * 0.5, shooting_y);
 }
 
-void destroy_bouncers(bouncer_t **bouncers, ballz_t *game) {
+void destroy_bouncers(bouncer_t **bouncers, game_t *game) {
 	if(bouncers != NULL) {
 		for(int i = 0; i < game->bouncers; ++i) {
 			if(bouncers[i] != NULL) {

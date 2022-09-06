@@ -9,18 +9,17 @@
 
 #define ROW 8
 #define COL 7
-
-typedef struct bouncer bouncer_t;
-struct bouncer {
-	float x;
-	float y;
-
-	float dx;
-	float dy;
-};
-
-typedef struct game game_t;
+typedef enum {
+   MENU,
+   SETUP,
+   WAITING,
+   AIMING,
+   SHOOTING,
+   GAMEOVER,
+   EXIT
+ } motion_states;
 struct game {
+	motion_states STATES;
 	int score;
 	int highscore;
 	int bouncers;
@@ -32,6 +31,18 @@ struct game {
 	float shooting_x;
 	float shooting_y;
 };
+
+typedef struct bouncer bouncer_t;
+struct bouncer {
+	float x;
+	float y;
+
+	float dx;
+	float dy;
+};
+
+typedef struct game game_t;
+
 
 float calc_square_side(float dispWidth);
 
