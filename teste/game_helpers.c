@@ -1,8 +1,8 @@
 #include "game_helpers.h"
 #include <stddef.h>
 
-float calc_square_side(float dispWidth) {
-    return dispWidth / 7.8;
+float calc_square_side(float display_width) {
+    return display_width / 7.8;
 }
 
 float calc_square_i_x(float j, float l) {
@@ -56,13 +56,13 @@ bouncer_t *createBouncer(float x, float y) {
 	return bouncer;
 }
 
-void setup_game(game_t *game, float dispWidth) {
+void setup_game(game_t *game, float display_width) {
 	game->score = 0;
 	game->bouncers = 1;
     game->thrown_bouncers = 0;
 	game->dx = 0;
 	game->dy = 0;
-	game->shooting_x = (dispWidth - BOUNCER_RADIUS) / 2.0;
+	game->shooting_x = (display_width - BOUNCER_RADIUS) / 2.0;
 }
 
 void setup_squares(int squares[][COL]) {
@@ -73,9 +73,9 @@ void setup_squares(int squares[][COL]) {
 	}
 }
 
-void setup_bouncers(bouncer_t ***bouncers, float dispWidth, float shooting_y) {
+void setup_bouncers(bouncer_t ***bouncers, float display_width, float shooting_y) {
 	*bouncers = calloc(sizeof(bouncer_t), 1);
-	*bouncers[0] = createBouncer(dispWidth * 0.5, shooting_y);
+	*bouncers[0] = createBouncer(display_width * 0.5, shooting_y);
 }
 
 void destroy_bouncers(bouncer_t **bouncers, game_t *game) {

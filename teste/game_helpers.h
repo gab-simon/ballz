@@ -44,7 +44,7 @@ struct bouncer {
 typedef struct game game_t;
 
 
-float calc_square_side(float dispWidth);
+float calc_square_side(float display_width);
 
 float calc_square_i_x(float j, float l);
 float calc_square_i_y(float i, float l);
@@ -55,9 +55,9 @@ float calc_square_f_y(float i, float l);
 
 bouncer_t *createBouncer(float x, float y);
 
-void setup_game(game_t *game, float dispWidth);
+void setup_game(game_t *game, float display_width);
 void setup_squares(int squares[][COL]);
-void setup_bouncers(bouncer_t ***bouncers, float dispWidth, float shooting_y);
+void setup_bouncers(bouncer_t ***bouncers, float display_width, float shooting_y);
 void destroy_bouncers(bouncer_t **bouncers, game_t *game);
 
 #endif

@@ -5,6 +5,8 @@
 
 #include "grafico.h"
 
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
@@ -17,6 +19,8 @@ window graph_init(int res_width, int res_height)
 	/* Inicializa a Allegro */
 	al_init();
 	al_init_image_addon();
+	al_install_audio();
+	al_init_acodec_addon();
 	al_init_native_dialog_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
@@ -27,6 +31,13 @@ window graph_init(int res_width, int res_height)
 	al_install_mouse();
 	al_install_keyboard();
 	win.timer = al_create_timer(1.0 / win.disp_data.refresh_rate);
+
+	// ALLEGRO_AUDIO_STREAM *music_menu;
+
+	// music_menu = al_load_audio_stream("utils/music.ogg", 4, 1024);
+    // al_attach_audio_stream_to_mixer(music_menu, al_get_default_mixer());
+
+	// al_set_audio_stream_playing(music_menu, true);
 
 	/* Define Eventos */
 	win.event_queue = al_create_event_queue();
@@ -41,7 +52,7 @@ window graph_init(int res_width, int res_height)
 	al_start_timer(win.timer);
 
 	char font_path[100];
-	sprintf(font_path, "%s/utils/font/Minecraft.ttf", al_get_current_directory());
+	sprintf(font_path, "%s/utils/fonts/Minecraft.ttf", al_get_current_directory());
 	printf("font_path: %s\n", font_path);
 
 	fonts_t *fonts = malloc(sizeof(fonts_t));
@@ -71,12 +82,12 @@ window graph_init(int res_width, int res_height)
 
 void draw_menu(window *win)
 {
-	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/bg_menu.png");
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
 	al_draw_bitmap(bg_menu, 0, 0, 0);
 
 	al_draw_text(win->fonts->title_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTER, "BALLz");
 
-	ALLEGRO_BITMAP *button = al_load_bitmap("utils/button.png");
+	ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.8, 0);
 
@@ -130,7 +141,7 @@ void draw_wait(window *win, bouncer_t *bouncer, int squares[][7], game_t *game)
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(bouncer->x, bouncer->y, BOUNCER_RADIUS, BRANCO);
 		show_blocks(win, squares, 0);
@@ -144,7 +155,7 @@ void draw_setup(window *win, bouncer_t *bouncer, int squares[][COL], float offse
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(bouncer->x, bouncer->y, BOUNCER_RADIUS, BRANCO);
 		show_blocks(win, squares, offsetY);
@@ -158,7 +169,7 @@ void draw_aim(window *win, bouncer_t *bouncer, float distX, float distY, float d
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(bouncer->x, bouncer->y, BOUNCER_RADIUS, BRANCO);
 		show_blocks(win, squares, 0);
@@ -175,7 +186,7 @@ void draw_shoot(window *win, bouncer_t **bouncers, int bouncersCount, int square
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		for (int i = 0; i < bouncersCount; i++)
 		{
@@ -200,7 +211,7 @@ void draw_gameover(window *win, game_t *game)
 	{
 		char text[20];
 
-		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/bg_menu.png");
+		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
 		al_draw_bitmap(bg_menu, 0, 0, 0);
 		
 		al_draw_text(win->fonts->big_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
@@ -212,7 +223,7 @@ void draw_gameover(window *win, game_t *game)
 			al_draw_text(win->fonts->small_font, VERDE_CLARO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTRE, "New Highscore!");
 		}
 
-		ALLEGRO_BITMAP *button = al_load_bitmap("utils/button.png");
+		ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
 		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
 		al_draw_text(win->fonts->medium_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.6 + 7, ALLEGRO_ALIGN_CENTER, "Play");
 
