@@ -2,7 +2,7 @@
 CFLAGS = -I . $(INCDIR) -std=c99 -Wall
 EXEC_NAME =ballz
 OBJS =ballz.o grafico.o game_helpers.o
-ALLEGRO =-lallegro_image -lallegro_primitives -lallegro_dialog -lallegro_ttf -lallegro_font -lallegro -lallegro_main -lallegro_audio  -lallegro_acodec
+ALLEGRO =-lallegro_image -lallegro_primitives -lallegro_dialog -lallegro_ttf -lallegro_font -lallegro -lallegro_main -lallegro_audio -lallegro_acodec
 LIBS =-lm $(ALLEGRO)
 CC =gcc
 

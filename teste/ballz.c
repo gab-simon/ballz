@@ -38,6 +38,18 @@ int main(int argc, char *argv[])
 
 	ALLEGRO_MOUSE_EVENT mouse_down;
 
+	ALLEGRO_SAMPLE *music_menu = al_load_sample("utils/sounds/sfx_menu.ogg");
+	ALLEGRO_SAMPLE *music_game = al_load_sample("utils/sounds/sfx_game.ogg");
+	ALLEGRO_SAMPLE *music_gameover = al_load_sample("utils/sounds/sfx_gameover.ogg");
+	ALLEGRO_SAMPLE *music_shot = al_load_sample("utils/sounds/sfx_wing.ogg");
+
+	ALLEGRO_SAMPLE_ID sfx_menu;
+	ALLEGRO_SAMPLE_ID sfx_game;
+	ALLEGRO_SAMPLE_ID sfx_gameover;
+	ALLEGRO_SAMPLE_ID sfx_shot;
+
+ 	al_reserve_samples(1);
+
 	float square_side = RES_WIDTH / 7.8;
 
 	game_t game;
@@ -76,6 +88,7 @@ int main(int argc, char *argv[])
 			{
 				draw_menu(&win);
 				menu_drew = true;
+				al_play_sample(music_menu, 1.0, 0.0, 1.2, ALLEGRO_PLAYMODE_LOOP, &sfx_menu);
 			}
 
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -110,6 +123,9 @@ int main(int argc, char *argv[])
 			break;
 
 		case SETUP:
+			al_stop_sample(&sfx_menu);
+			al_play_sample(music_game, 0.3, 0.0, 1.2, ALLEGRO_PLAYMODE_LOOP, &sfx_game);
+
 			if (!new_blocks)
 			{
 				game.score++;
@@ -206,6 +222,7 @@ int main(int argc, char *argv[])
 					game.dx = SPEED_FACTOR * (dist_x) / dist;
 					game.dy = SPEED_FACTOR * (dist_y) / dist;
 
+					al_play_sample(music_shot, 1.0, 0.0, 1.2, ALLEGRO_PLAYMODE_ONCE, &sfx_shot);
 					game.STATES = SHOOTING;
 					can_shoot = false;
 				}
@@ -381,10 +398,13 @@ int main(int argc, char *argv[])
 			break;
 
 		case GAMEOVER:
+			// al_stop_sample(&sfx_game);
+			// al_play_sample(music_gameover, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &sfx_gameover);
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 80)
 				{
+					// al_stop_sample(&sfx_gameover);
 					game.STATES = SETUP;
 					setup_game(&game, RES_WIDTH);
 
@@ -406,6 +426,7 @@ int main(int argc, char *argv[])
 				}
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.75 && ev.mouse.y < win.disp_data.height * 0.75 + 80)
 				{
+					// al_stop_sample(&sfx_gameover);
 					menu_drew = false;
 					game.STATES = MENU;
 				}
@@ -423,6 +444,10 @@ int main(int argc, char *argv[])
 	}
 
 	destroy_bouncers(bouncers, &game);
+	al_destroy_sample(music_menu);
+	al_destroy_sample(music_gameover);
+	al_destroy_sample(music_shot);
+	al_destroy_sample(music_game);
 	graph_deinit(win);
 	return 0;
 }

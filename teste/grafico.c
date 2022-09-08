@@ -32,9 +32,7 @@ window graph_init(int res_width, int res_height)
 	al_install_keyboard();
 	win.timer = al_create_timer(1.0 / win.disp_data.refresh_rate);
 
-	// ALLEGRO_AUDIO_STREAM *music_menu;
-
-	// music_menu = al_load_audio_stream("utils/music.ogg", 4, 1024);
+	// music_menu = al_load_audio_stream("utils/sounds/music.ogg", 4, 1024);
     // al_attach_audio_stream_to_mixer(music_menu, al_get_default_mixer());
 
 	// al_set_audio_stream_playing(music_menu, true);
@@ -108,7 +106,7 @@ void show_blocks(window *win, int squares[][7], float offsetY)
 		{
 			if (squares[i][j] > 0)
 			{
-				al_draw_filled_rectangle((77 * j) + 10, (77 * i) + 10, (77 * j) + 77, (77 * i) + 77, al_map_rgb(250,127,114));
+				al_draw_filled_rectangle(calc_square_i_x(j, l), calc_square_i_y(i, l) + offsetY, calc_square_f_x(j, l), calc_square_f_y(i, l) + offsetY, al_map_rgb(240 - 3 * squares[i][j]%80, 172 - 3 * squares[i][j]%57, 46 + 3 * squares[i][j]%70));
 				char text[10];
 				int textOffset = al_get_font_line_height(win->fonts->small_font) / 2;
 				sprintf(text, "%d", squares[i][j]);
