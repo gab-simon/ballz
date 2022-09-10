@@ -98,11 +98,14 @@ void draw_menu(window *win)
 	al_flip_display();
 }
 
-void draw_info(window *win)
+void draw_info(window *win, game_t *game)
 {
-	FILE* score = fopen("utils/score.txt", "r"); /* should check the result */
-    char line[256];
+	system("sort -o utils/score.txt utils/score.txt");
+
+	FILE *score = fopen("utils/score.txt", "r");
+	char line[256];
 	int i = 1;
+	char text[50];
 
 	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
 	al_draw_bitmap(bg_menu, 0, 0, 0);
@@ -114,29 +117,34 @@ void draw_info(window *win)
 
 	al_draw_text(win->fonts->medium_font, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.43, ALLEGRO_ALIGN_CENTER, "MENU");
 
-	al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.55, ALLEGRO_ALIGN_CENTER, "10 melhores pontuacoes");
+	sprintf(text, "Maior pontuacao %d", game->highscore);
+	al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.55, ALLEGRO_ALIGN_CENTER, text);
 
+	al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.65, ALLEGRO_ALIGN_CENTER, "10 melhores pontuacoes:");
 
-    while (fgets(line, sizeof(line), score)) {
-        al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.60 + (25 * i), ALLEGRO_ALIGN_CENTER, line);
-        printf("%s", line);
+	while (fgets(line, sizeof(line), score)) {
+	    al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.70 + (25 * i), ALLEGRO_ALIGN_CENTER, line);
+	    printf("%s", line);
 		i++;
-    }
+	}
 
 	al_flip_display();
-    fclose(score);
+	fclose(score);
 }
 
 void show_blocks(window *win, int squares[][7], float offsetY)
 {
 	float l = calc_square_side(win->disp_data.width);
 	int i, j;
+
 	for (i = 0; i < ROW; ++i)
 	{
 		for (j = 0; j < COL; ++j)
 		{
 			if (squares[i][j] > 0)
 			{
+				// al_draw_filled_triangle(35, 375, 85, 375, 35, 400, al_map_rgb_f(0, 1, 0));
+				// al_draw_filled_triangle(70, 350, 35, 350, 70, 400, al_map_rgb_f(0, 0, 1));
 				al_draw_filled_rectangle(calc_square_i_x(j, l), calc_square_i_y(i, l) + offsetY, calc_square_f_x(j, l), calc_square_f_y(i, l) + offsetY, al_map_rgb(240 - 3 * squares[i][j] % 80, 172 - 3 * squares[i][j] % 57, 46 + 3 * squares[i][j] % 70));
 				char text[10];
 				int textOffset = al_get_font_line_height(win->fonts->small_font) / 2;
@@ -147,6 +155,11 @@ void show_blocks(window *win, int squares[][7], float offsetY)
 			{
 				al_draw_filled_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, 8, BRANCO);
 				al_draw_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, BOUNCER_RADIUS + 5, BRANCO, 2);
+			}
+			if (squares[i][j] == -2)
+			{
+				al_draw_filled_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, 8, ROXO);
+				al_draw_circle(calc_square_mid_x(j, l), calc_square_mid_y(i, l) + offsetY, BOUNCER_RADIUS + 5, ROXO, 2);
 			}
 		}
 	}
@@ -234,46 +247,9 @@ void draw_shoot(window *win, bouncer_t **bouncers, int bouncersCount, int square
 	}
 }
 
-char *top_highscores()
-{
-	FILE *score;
-	char line[32];
-	int counter = 0;
-	size_t len = 0;
-	ssize_t read;
-	char *strArray = malloc (sizeof (char) * 32);
-
-	score = fopen("utils/score.txt", "r");
-
-	if (score == NULL)
-	{
-		printf("erro ao abrir arquivo");
-	}
-
-	while ((read = getline(&line, &len, score)) != -1) // loop thru lines and add them to the strArray
-        {
-            int i = 0;
-            while(line[i] != '\n'){ // loop thru the characters in the current line
-                strArray[counter] = line[i];
-                i++;
-            }
-            
-            counter++;//counts the number of lines in the file
-         
-        }
-
-	char temp[30];
-
-	fclose(score);
-
-	return strArray;
-
-}
-
 void new_highscore(game_t *game)
 {
 	FILE *score;
-	// char buffer[MAX_LINES];
 	char score_string[32];
 
 	score = fopen("utils/score.txt", "a");
@@ -285,7 +261,6 @@ void new_highscore(game_t *game)
 
 	sprintf(score_string, "%d", game->score);
 
-	// fgets(game->highscore, MAX_LINES, stdin);
 	fputs(score_string, score);
 	fputs("\n", score);
 
@@ -307,7 +282,7 @@ void draw_gameover(window *win, game_t *game)
 
 		if (game->score >= game->highscore)
 		{
-			al_draw_text(win->fonts->small_font, VERDE_CLARO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTRE, "New Highscore!");
+			al_draw_text(win->fonts->small_font, VERDE_ESCURO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTRE, "Nova melhor pontuacao");
 		}
 
 		new_highscore(game);

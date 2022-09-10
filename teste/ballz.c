@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 	bool can_shoot = false;
 	bool new_blocks = false;
 	bool new_shots = false;
+	bool ovosecreto = false;
 
 	int launch_interval = 0;
 	int launch_index = 0;
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
 		case INFO:
 			if (!info_drew)
 			{
-				draw_info(&win);
+				draw_info(&win, &game);
 				info_drew = true;
 				menu_drew = false;
 			}
@@ -146,8 +147,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case SETUP:
-			al_stop_sample(&sfx_menu);
-			al_play_sample(music_game, 0.3, 0.0, 1.2, ALLEGRO_PLAYMODE_LOOP, &sfx_game);
+			al_play_sample(music_game, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &sfx_game);
 
 			if (!new_blocks)
 			{
@@ -164,6 +164,11 @@ int main(int argc, char *argv[])
 				{
 					int newBallPosition = rand() % COL;
 					squares[0][newBallPosition] = -1;
+				}
+				if (game.score >= 5 && ovosecreto)
+				{
+					int newBallPosition = rand() % COL;
+					squares[0][newBallPosition] = -2;
 				}
 				new_blocks = true;
 			}
@@ -219,6 +224,10 @@ int main(int argc, char *argv[])
 		case WAITING:
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
+				if (ev.keyboard.keycode == ALLEGRO_KEY_O && game.score >= 2)
+				{
+					ovosecreto = true;
+				}
 				if (ev.keyboard.keycode == ALLEGRO_KEY_H)
 				{
 					al_show_native_message_box(win.display, "Instruções", "TEste textoo textooo uma um texto aqui um textooo", "textooo", NULL, NULL);
@@ -333,10 +342,15 @@ int main(int argc, char *argv[])
 										bouncers[i]->dy = -bouncers[i]->dy;
 										squares[l][c]--;
 									}
-									if (squares[l][c] < 0 && calc_square_mid_y(l, square_side) <= bouncers[i]->y + 2 * BOUNCER_RADIUS && calc_square_mid_y(l, square_side) >= bouncers[i]->y - 2 * BOUNCER_RADIUS)
+									if ((squares[l][c] < 0 && squares[l][c] == -1) && calc_square_mid_y(l, square_side) <= bouncers[i]->y + 2 * BOUNCER_RADIUS && calc_square_mid_y(l, square_side) >= bouncers[i]->y - 2 * BOUNCER_RADIUS)
 									{
 										squares[l][c] = 0;
 										new_bouncers_count++;
+									}
+									if ((squares[l][c] < 0 && squares[l][c] == -2) && calc_square_mid_y(l, square_side) <= bouncers[i]->y + 2 * BOUNCER_RADIUS && calc_square_mid_y(l, square_side) >= bouncers[i]->y - 2 * BOUNCER_RADIUS)
+									{
+										squares[l][c] = 0;
+										game.score+=5;
 									}
 								}
 							}

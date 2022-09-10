@@ -32,6 +32,7 @@ struct game {
 	float shooting_x;
 	float shooting_y;
 };
+typedef struct game game_t;
 
 typedef struct bouncer bouncer_t;
 struct bouncer {
@@ -42,7 +43,6 @@ struct bouncer {
 	float dy;
 };
 
-typedef struct game game_t;
 
 
 float calc_square_side(float display_width);
