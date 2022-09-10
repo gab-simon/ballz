@@ -1,183 +1,285 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* Allegro */
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_native_dialog.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
+#include <math.h>
 
 #include "grafico.h"
 
-#define COL 7
-#define ROW 9
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 
-Window graphinit(int res_width, int res_height)
+window graph_init(int res_width, int res_height)
 {
-    int i;
-    Window win = {NULL, NULL, NULL, {0, 0, 0, 0}};
+	window win = {NULL, NULL, NULL, {res_width, res_height, 0, 60}, NULL};
 
-    /* Inicializa a Allegro */
-    al_init();
-    al_init_image_addon();
-    al_init_native_dialog_addon();
-    al_init_font_addon();
-    al_init_ttf_addon();
+	/* Inicializa a Allegro */
+	al_init();
+	al_init_image_addon();
+	al_install_audio();
+	al_init_acodec_addon();
+	al_init_native_dialog_addon();
+	al_init_font_addon();
+	al_init_primitives_addon();
+	al_init_ttf_addon();
 
-    /* Define Janela */
-#ifdef __DEBUG__
-    puts("Modos display a 60Hz disponíveis:\n");
-#endif
+	win.display = al_create_display(res_width, res_height);
 
-    for (i = 0; i < al_get_num_display_modes(); ++i)
-    {
-        al_get_display_mode(i, &win.disp_data);
+	al_install_mouse();
+	al_install_keyboard();
+	win.timer = al_create_timer(1.0 / win.disp_data.refresh_rate);
 
-        if (win.disp_data.refresh_rate == 60)
-        { // 60 Hz
-#ifdef __DEBUG__
-            printf("(%d): %d %d\n", i, win.disp_data.width, win.disp_data.height);
-#endif
-            if (win.disp_data.width == res_width && win.disp_data.height == res_height)
-                break;
-        }
-    }
+	/* Define Eventos */
+	win.event_queue = al_create_event_queue();
 
-#ifdef __DEBUG__
-    printf("\n\tModo selecionado --> (%d): %d %d\n", i, win.disp_data.width, win.disp_data.height);
-#endif
+	al_register_event_source(win.event_queue, al_get_display_event_source(win.display));
+	al_register_event_source(win.event_queue, al_get_mouse_event_source());
+	al_register_event_source(win.event_queue, al_get_keyboard_event_source());
+	al_register_event_source(win.event_queue, al_get_timer_event_source(win.timer));
 
-    al_get_display_mode(i, &win.disp_data);
-    al_set_new_display_flags(ALLEGRO_WINDOWED); // | ALLEGRO_RESIZABLE);
-                                                // ALLEGRO_FULLSCREEN
-                                                // ALLEGRO_FRAMELESS
-    win.display = al_create_display(win.disp_data.width, win.disp_data.height);
+	al_clear_to_color(PRETO);
+	al_flip_display();
+	al_start_timer(win.timer);
 
-    /* Instala o handler de mouse do Allegro */
-    al_install_mouse();
-    /* Instala o handler de teclado do Allegro */
-    al_install_keyboard();
-    /* Instala o handler de timer do Allegro */
-    win.timer = al_create_timer(1.0 / win.disp_data.refresh_rate);
+	char font_path[100];
+	sprintf(font_path, "%s/utils/fonts/Minecraft.ttf", al_get_current_directory());
+	printf("font_path: %s\n", font_path);
+	fonts_t *fonts = malloc(sizeof(fonts_t));
+	fonts->big = al_load_font(font_path, 85, 0);
+	fonts->medium = al_load_font(font_path, 55, 0);
+	fonts->small = al_load_font(font_path, 35, 0);
 
-    /* Define Eventos */
-    win.event_queue = al_create_event_queue();
+	win.fonts = fonts;
+	printf("====================================================\n");
 
-    al_register_event_source(win.event_queue, al_get_display_event_source(win.display));
-    al_register_event_source(win.event_queue, al_get_mouse_event_source());
-    al_register_event_source(win.event_queue, al_get_keyboard_event_source());
-    al_register_event_source(win.event_queue, al_get_timer_event_source(win.timer));
-
-    al_clear_to_color(AZUL);
-    al_flip_display();
-    al_start_timer(win.timer);
-
-    return (win);
+	return (win);
 }
 
-void graphdeinit(Window win)
+void draw_menu(window *win)
 {
-    al_destroy_timer(win.timer);
-    al_destroy_event_queue(win.event_queue);
-    al_destroy_display(win.display);
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+	al_draw_bitmap(bg_menu, 0, 0, 0);
+
+	al_draw_text(win->fonts->big, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTER, "BALLZ");
+
+	ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
+	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.8, 0);
+
+	al_draw_text(win->fonts->medium, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.63, ALLEGRO_ALIGN_CENTER, "PLAY");
+	al_draw_text(win->fonts->medium, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.83, ALLEGRO_ALIGN_CENTER, "INFO");
+
+	al_flip_display();
 }
 
-ALLEGRO_BITMAP *imagemArq(char *nomeArqImg, int width, int height, Window win)
+void draw_info(window *win, game_t *game)
 {
-    ALLEGRO_BITMAP *bmp, *img;
+	system("sort -nr -o utils/score_high.txt utils/score.txt");
 
-    bmp = al_create_bitmap(width, height);
-    al_set_target_bitmap(bmp);
-    al_clear_to_color(NEVE);
+	FILE *score = fopen("utils/score_high.txt", "r");
+	char line[256];
+	int i = 0;
+	char text[50];
 
-    if (nomeArqImg)
-    {
-        img = al_load_bitmap(nomeArqImg);
-        al_draw_bitmap(img, 0, 0, 0);
-    }
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+	al_draw_bitmap(bg_menu, 0, 0, 0);
 
-    al_set_target_bitmap(al_get_backbuffer(win.display));
+	al_draw_text(win->fonts->medium, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.1, ALLEGRO_ALIGN_CENTER, "RECORDES");
 
-    return bmp;
+	ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.2, 0);
+
+	al_draw_text(win->fonts->medium, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.23, ALLEGRO_ALIGN_CENTER, "MENU");
+
+	sprintf(text, "Maior pontuacao %d", game->highscore);
+	al_draw_text(win->fonts->small, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.45, ALLEGRO_ALIGN_CENTER, text);
+
+	al_draw_text(win->fonts->small, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTER, "10 melhores pontuacoes:");
+
+	while (fgets(line, sizeof(line), score) && i < 10)
+	{
+		al_draw_text(win->fonts->small, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.55 + (30 * i), ALLEGRO_ALIGN_CENTER, line);
+		printf("%s", line);
+		i++;
+	}
+
+	al_flip_display();
+	fclose(score);
 }
 
-/* Cria regi�o em display para exibir Texto em ambiente ALLEGRO */
-/* */
-ALLEGRO_BITMAP *imagemTexto(char *texto, int *width, int *height, Window win)
+void draw_gameover(window *win, game_t *game)
 {
-    ALLEGRO_BITMAP *bmp;
-    ALLEGRO_FONT *font;
+	if (al_is_event_queue_empty(win->event_queue))
+	{
+		char text[20];
 
-    font = al_load_ttf_font("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 24, 0);
-    *width = al_get_text_width(font, texto) + 50;
-    *height = al_get_font_line_height(font) + 50;
+		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+		al_draw_bitmap(bg_menu, 0, 0, 0);
 
-    bmp = al_create_bitmap(*width, *height);
+		al_draw_text(win->fonts->medium, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
+		sprintf(text, "Pontuacao: %d", game->score);
+		al_draw_text(win->fonts->medium, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.4, ALLEGRO_ALIGN_CENTRE, text);
 
-    al_set_target_bitmap(bmp);
-    al_clear_to_color(SALMAO);
-
-    if (!font)
-    {
-        printf("\nErro na fonte de texto\n");
-        exit(1);
-    }
-
-    al_draw_text(font, AZUL, *width / 2.0, *height / 2.0, ALLEGRO_ALIGN_CENTRE, texto);
-
-    al_set_target_bitmap(al_get_backbuffer(win.display));
-
-    return bmp;
-}
-
-bouncer_t *createBouncer(float x, float y) {
-	bouncer_t *bouncer = malloc(sizeof(bouncer_t));
-	bouncer->dx = 0;
-	bouncer->dy = 0;
-	bouncer->x = x;
-	bouncer->y = y;
-
-	return bouncer;
-}
-
-void blocks_build(int blocks[][COL]) {
-	for (int i = 0; i < ROW; ++i) {
-		for (int j = 0; j < COL; ++j) {
-			blocks[i][j] = 2;
+		if (game->score >= game->highscore)
+		{
+			al_draw_text(win->fonts->small, VERDE_ESCURO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTRE, "Nova melhor pontuacao");
 		}
+
+		new_highscore(game);
+
+		ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
+		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.8, 0);
+
+		al_draw_text(win->fonts->medium, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.63, ALLEGRO_ALIGN_CENTER, "PLAY");
+		al_draw_text(win->fonts->medium, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.83, ALLEGRO_ALIGN_CENTER, "MENU");
+
+		al_flip_display();
 	}
 }
 
-void blocks_draw(int blocks[][7]) {
+void show_blocks(window *win, int blocks[][7], float off_set_y)
+{
+	float l = block_side(win->disp_data.width);
 	int i, j;
-    ALLEGRO_FONT *fonte = al_load_font("utils/flappy_font.ttf", 48, 0);
 
-    // al_draw_filled_rectangle(0, 0, 64, 64, al_map_rgb(250,127,114));
-    // al_draw_filled_rectangle(64 + 5, 0, 128, 64, al_map_rgb(250,127,114));
-    // al_draw_filled_rectangle(128 + 5, 0, 192, 64, al_map_rgb(250,127,114));
-
-	for (i = 0; i < ROW; ++i) {
-		for (j = 0; j < COL; ++j) {
-			if (blocks[i][j] > 0) {
-				al_draw_filled_rectangle((64 * j) + 5, (64 * i) + 5, (64 * j) + 64, (64 * i) + 64, al_map_rgb(250,127,114));
+	for (i = 0; i < ROW; ++i)
+	{
+		for (j = 0; j < COL; ++j)
+		{
+			if (blocks[i][j] > 0)
+			{
+				al_draw_filled_rectangle(block_i_x(j, l), block_i_y(i, l) + off_set_y, block_f_x(j, l), block_f_y(i, l) + off_set_y, al_map_rgb(10 * blocks[i][j] % 20, 50 * blocks[i][j] % 50, 100 * blocks[i][j] % 80));
 				char text[10];
-				int textOffset = al_get_font_line_height(fonte)/2;
+				int textOffset = al_get_font_line_height(win->fonts->small) / 2;
 				sprintf(text, "%d", blocks[i][j]);
-				al_draw_text(fonte, BRANCO_ANTIGO, 64 * j, 64 * i, ALLEGRO_ALIGN_CENTER, text);
+				al_draw_text(win->fonts->small, BRANCO, block_mid_x(j, l), block_mid_y(i, l) + off_set_y - textOffset, ALLEGRO_ALIGN_CENTER, text);
 			}
-			if (blocks[i][j] == -1) {
-				al_draw_filled_circle(64 * j, 64 * i + 5, 12, BRANCO);
-				al_draw_circle(64 * j, 64 * i + 5, 12 + 10, BRANCO, 5);
+			if (blocks[i][j] == -1)
+			{
+				al_draw_filled_circle(block_mid_x(j, l), block_mid_y(i, l) + off_set_y, 8, BRANCO);
+				al_draw_circle(block_mid_x(j, l), block_mid_y(i, l) + off_set_y, BALL_RADIUS + 5, BRANCO, 2);
+			}
+			if (blocks[i][j] == -2)
+			{
+				al_draw_filled_circle(block_mid_x(j, l), block_mid_y(i, l) + off_set_y, 8, AMARELO);
+				al_draw_circle(block_mid_x(j, l), block_mid_y(i, l) + off_set_y, BALL_RADIUS + 5, AMARELO_QUEIMADO, 2);
 			}
 		}
 	}
 }
 
-void setup_bouncers(bouncer_t ***bouncers, float dispWidth, float shooting_y) {
-	*bouncers = calloc(sizeof(bouncer_t), 1);
-	*bouncers[0] = createBouncer(dispWidth * 0.5, shooting_y);
+void draw_score(window *win, game_t *game)
+{
+	char text[20];
+	sprintf(text, "Pontuacao: %d", game->score);
+	al_draw_text(win->fonts->small, BRANCO, 20, 765, ALLEGRO_ALIGN_LEFT, text);
+}
+
+void draw_count_balls(window *win, game_t *game)
+{
+	char text[20];
+	sprintf(text, "x%d", game->balls - game->shot_balls);
+	al_draw_text(win->fonts->small, BRANCO, game->shooting_x - BALL_RADIUS - 20, game->shooting_y - BALL_RADIUS - 30, ALLEGRO_ALIGN_LEFT, text);
+}
+
+void draw_wait(window *win, ball_t *ball, int blocks[][7], game_t *game)
+{
+	if (al_event_queue_is_empty(win->event_queue))
+	{
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		al_draw_bitmap(bg_game, 0, 0, 0);
+		al_draw_filled_circle(ball->x, ball->y, BALL_RADIUS, BRANCO);
+		show_blocks(win, blocks, 0);
+		draw_score(win, game);
+		draw_count_balls(win, game);
+		al_flip_display();
+	}
+}
+
+void draw_setup(window *win, ball_t *ball, int blocks[][COL], float off_set_y, game_t *game)
+{
+	if (al_event_queue_is_empty(win->event_queue))
+	{
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		al_draw_bitmap(bg_game, 0, 0, 0);
+		al_draw_filled_circle(ball->x, ball->y, BALL_RADIUS, BRANCO);
+		show_blocks(win, blocks, off_set_y);
+		draw_score(win, game);
+		draw_count_balls(win, game);
+		al_flip_display();
+	}
+}
+
+void draw_aim(window *win, ball_t *ball, float distX, float distY, float dist, int blocks[][COL], game_t *game)
+{
+	if (al_is_event_queue_empty(win->event_queue))
+	{
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		al_draw_bitmap(bg_game, 0, 0, 0);
+		al_draw_filled_circle(ball->x, ball->y, BALL_RADIUS, BRANCO);
+		show_blocks(win, blocks, 0);
+		draw_count_balls(win, game);
+
+		al_draw_line(ball->x, ball->y, ball->x + (BALL_RADIUS + 400) * distX / dist, ball->y + (BALL_RADIUS + 400) * distY / dist, BRANCO, 2);
+
+		draw_score(win, game);
+		al_flip_display();
+	}
+}
+
+void draw_shoot(window *win, ball_t **balls, int ballsCount, int blocks[][COL], game_t *game)
+{
+	if (al_is_event_queue_empty(win->event_queue))
+	{
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		al_draw_bitmap(bg_game, 0, 0, 0);
+		for (int i = 0; i < ballsCount; i++)
+		{
+			if (balls[i])
+			{
+				al_draw_filled_circle(balls[i]->x, balls[i]->y, BALL_RADIUS, BRANCO);
+			}
+		}
+		if (game->shot_balls != game->balls)
+		{
+			draw_count_balls(win, game);
+		}
+		show_blocks(win, blocks, 0);
+		draw_score(win, game);
+		al_flip_display();
+	}
+}
+
+void new_highscore(game_t *game)
+{
+	FILE *score;
+	char score_string[32];
+
+	score = fopen("utils/score.txt", "a");
+
+	if (score == NULL)
+	{
+		printf("erro ao abrir arquivo");
+	}
+
+	sprintf(score_string, "%d", game->score);
+
+	fputs(score_string, score);
+	fputs("\n", score);
+
+	fclose(score);
+}
+
+void graph_deinit(window win)
+{
+	al_destroy_timer(win.timer);
+	al_destroy_event_queue(win.event_queue);
+	al_destroy_display(win.display);
+
+	al_destroy_font(win.fonts->big);
+	al_destroy_font(win.fonts->medium);
+	al_destroy_font(win.fonts->small);
+	free(win.fonts);
 }
