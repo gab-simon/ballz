@@ -52,7 +52,7 @@ float block_mid_x(float j, float l);
 float block_mid_y(float i, float l);
 float block_f_x(float j, float l);
 float block_f_y(float i, float l);
-ball_t *buildball(float x, float y);
+ball_t *buildBall(float x, float y);
 void build_game(game_t *game, float display_width);
 void build_blocks(int blocks[][COL]);
 void build_balls(ball_t ***balls, float display_width, float shooting_y);

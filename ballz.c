@@ -23,20 +23,14 @@ int main(int argc, char *argv[])
 	srand(time(NULL));
 
 	int i, j;
-
-	bool menu_drew = false;
-	bool info_drew = false;
-	bool can_shoot = false;
-	bool new_blocks = false;
-	bool new_shots = false;
-	bool ovosecreto = false;
-
 	int interval = 0;
 	int index = 0;
 	int arrival_counter = 0;
 	int new_balls_count = 0;
-
 	float off_set_y = 0;
+
+	bool menu_drew = false, info_drew = false, can_shoot = false;
+	bool new_blocks = false, new_shots = false, easter_egg = false;
 
 	ALLEGRO_MOUSE_EVENT mouse_down;
 
@@ -65,17 +59,16 @@ int main(int argc, char *argv[])
 		game.highscore = 0;
 	}
 	else
-	{
 		fscanf(score_file, "%d", &game.highscore);
-	}
+	
 	fclose(score_file);
 
 	game.STATES = MENU;
 
 	while (game.STATES != EXIT)
 	{
-		ALLEGRO_EVENT ev;
-		al_wait_for_event(win.event_queue, &ev);
+		ALLEGRO_EVENT event;
+		al_wait_for_event(win.event_queue, &event);
 
 		int distance_x;
 		int distance_y;
@@ -92,17 +85,17 @@ int main(int argc, char *argv[])
 				al_play_sample(music_menu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 			}
 
-			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
-				if (ev.keyboard.keycode == ALLEGRO_KEY_H)
+				if (event.keyboard.keycode == ALLEGRO_KEY_H)
 					al_show_native_message_box(win.display, "BALLZ", "Instruções", "Como jogar: utilize o mouse para direcionar a bola nos quadrados\nObjetivo: Conseguir a maior quantidade de pontos\nObs: Acerte os circulos brancos para obter mais bolas\n\nGabriel Simon GRR20210575\n\nExperimente apertar a tecla O :D", NULL, 0);
 
-				if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+				if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
 					game.STATES = EXIT;
 			}
-			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
-				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 90)
+				if (event.mouse.x > RES_WIDTH * 0.5 - 160 && event.mouse.x < RES_WIDTH * 0.5 + 160 && event.mouse.y > win.disp_data.height * 0.6 && event.mouse.y < win.disp_data.height * 0.6 + 90)
 				{
 					al_stop_sample(&sfx_menu);
 					game.STATES = SERVING;
@@ -121,7 +114,7 @@ int main(int argc, char *argv[])
 
 					off_set_y = 0;
 				}
-				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.8 && ev.mouse.y < win.disp_data.height * 0.8 + 90)
+				if (event.mouse.x > RES_WIDTH * 0.5 - 160 && event.mouse.x < RES_WIDTH * 0.5 + 160 && event.mouse.y > win.disp_data.height * 0.8 && event.mouse.y < win.disp_data.height * 0.8 + 90)
 				{
 					al_stop_sample(&sfx_menu);
 					game.STATES = INFO;
@@ -136,14 +129,14 @@ int main(int argc, char *argv[])
 				info_drew = true;
 				menu_drew = false;
 			}
-			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
-				if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+				if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
 					game.STATES = MENU;
 			}
-			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
-				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.2 && ev.mouse.y < win.disp_data.height * 0.2 + 90)
+				if (event.mouse.x > RES_WIDTH * 0.5 - 160 && event.mouse.x < RES_WIDTH * 0.5 + 160 && event.mouse.y > win.disp_data.height * 0.2 && event.mouse.y < win.disp_data.height * 0.2 + 90)
 					game.STATES = MENU;
 			}
 
@@ -164,14 +157,14 @@ int main(int argc, char *argv[])
 					int newBallPosition = rand() % COL;
 					blocks[0][newBallPosition] = -1;
 				}
-				if (game.score >= 5 && ovosecreto)
+				if (game.score >= 5 && easter_egg)
 				{
 					int newBallPosition = rand() % COL - 3;
 					blocks[0][newBallPosition] = -2;
 				}
 				new_blocks = true;
 			}
-			if (ev.type == ALLEGRO_EVENT_TIMER)
+			if (event.type == ALLEGRO_EVENT_TIMER)
 			{
 				if (off_set_y < (1.1 * square_side))
 				{
@@ -194,7 +187,7 @@ int main(int argc, char *argv[])
 
 						for (j = 0; j < COL; j++)
 							blocks[0][j] = 0;
-							
+
 						game.STATES = WAITING;
 						draw_wait(&win, balls[0], blocks, &game);
 					}
@@ -215,30 +208,30 @@ int main(int argc, char *argv[])
 			break;
 
 		case WAITING:
-			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
-				if (ev.keyboard.keycode == ALLEGRO_KEY_O)
+				if (event.keyboard.keycode == ALLEGRO_KEY_O)
 				{
 					al_show_native_message_box(win.display, "CHEAT", "CHEAT MODE ON", "Acerte os circulos amarelos para ganhar mais 3 bolas!", NULL, 0);
-					ovosecreto = true;
+					easter_egg = true;
 				}
-				if (ev.keyboard.keycode == ALLEGRO_KEY_H)
+				if (event.keyboard.keycode == ALLEGRO_KEY_H)
 					al_show_native_message_box(win.display, "BALLZ", "Instruções", "Como jogar: utilize o mouse para direcionar a bola nos quadrados\nObjetivo: Conseguir a maior quantidade de pontos\nObs: Acerte os circulos brancos para obter mais bolas\n\nGabriel Simon GRR20210575\n\nExperimente apertar a tecla O :D", NULL, 0);
 			}
 
-			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 			{
-				mouse_down = ev.mouse;
+				mouse_down = event.mouse;
 				game.STATES = AIMING;
 			}
 			break;
 
 		case AIMING:
-			distance_x = (mouse_down.x - ev.mouse.x);
-			distance_y = (mouse_down.y - ev.mouse.y);
+			distance_x = (mouse_down.x - event.mouse.x);
+			distance_y = (mouse_down.y - event.mouse.y);
 			dist = sqrt(pow(distance_x, 2) + pow(distance_y, 2));
 
-			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
 				if (can_shoot)
 				{
@@ -252,7 +245,7 @@ int main(int argc, char *argv[])
 				else
 					game.STATES = WAITING;
 			}
-			else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+			else if (event.type == ALLEGRO_EVENT_MOUSE_AXES)
 			{
 				if ((dist > BALL_RADIUS) && (fabs((float)distance_y / distance_x) > 0.06) && (distance_y < 0))
 				{
@@ -268,7 +261,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case SHOOTING:
-			if (ev.type == ALLEGRO_EVENT_TIMER)
+			if (event.type == ALLEGRO_EVENT_TIMER)
 			{
 				if (new_shots)
 				{
@@ -281,7 +274,7 @@ int main(int argc, char *argv[])
 					balls = new_balls;
 
 					for (i = game.balls - new_balls_count; i < game.balls; i++)
-						balls[i] = buildball(game.shooting_x, game.shooting_y);
+						balls[i] = buildBall(game.shooting_x, game.shooting_y);
 
 					new_balls_count = 0;
 					new_shots = false;
@@ -415,9 +408,9 @@ int main(int argc, char *argv[])
 
 		case GAMEOVER:
 			al_play_sample(music_gameover, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, &sfx_gameover);
-			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+			if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
-				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 90)
+				if (event.mouse.x > RES_WIDTH * 0.5 - 160 && event.mouse.x < RES_WIDTH * 0.5 + 160 && event.mouse.y > win.disp_data.height * 0.6 && event.mouse.y < win.disp_data.height * 0.6 + 90)
 				{
 					game.STATES = SERVING;
 					build_game(&game, RES_WIDTH);
@@ -436,7 +429,7 @@ int main(int argc, char *argv[])
 
 					off_set_y = 0;
 				}
-				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.75 && ev.mouse.y < win.disp_data.height * 0.75 + 90)
+				if (event.mouse.x > RES_WIDTH * 0.5 - 160 && event.mouse.x < RES_WIDTH * 0.5 + 160 && event.mouse.y > win.disp_data.height * 0.75 && event.mouse.y < win.disp_data.height * 0.75 + 90)
 				{
 					menu_drew = false;
 					game.STATES = MENU;
@@ -448,7 +441,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			game.STATES = EXIT;
 	}
 
