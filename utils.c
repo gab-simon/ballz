@@ -41,7 +41,7 @@ int display_matrix_ji(float xi, float l)
 	return (xi / (1.1 * l)) - 1 / 11;
 }
 
-int calciMatrixPositioni(float yi, float l)
+int display_matrix_i(float yi, float l)
 {
 	return yi / (1.1 * l);
 }
@@ -51,12 +51,12 @@ int display_matrix_jf(float xf, float l)
 	return (xf / (1.1 * l)) - 1;
 }
 
-int calciMatrixPositionf(float yf, float l)
+int display_matrix_f(float yf, float l)
 {
 	return (yf / (1.1 * l)) - 10 / 11;
 }
 
-ball_t *createball(float x, float y)
+ball_t *buildball(float x, float y)
 {
 	ball_t *ball = malloc(sizeof(ball_t));
 	ball->dx = 0;
@@ -67,7 +67,7 @@ ball_t *createball(float x, float y)
 	return ball;
 }
 
-void setup_game(game_t *game, float display_width)
+void build_game(game_t *game, float display_width)
 {
 	game->score = 0;
 	game->balls = 1;
@@ -77,7 +77,7 @@ void setup_game(game_t *game, float display_width)
 	game->shooting_x = (display_width - BALL_RADIUS) / 2.0;
 }
 
-void setup_blocks(int blocks[][COL])
+void build_blocks(int blocks[][COL])
 {
 	for (int i = 0; i < ROW; ++i)
 	{
@@ -88,10 +88,10 @@ void setup_blocks(int blocks[][COL])
 	}
 }
 
-void setup_balls(ball_t ***balls, float display_width, float shooting_y)
+void build_balls(ball_t ***balls, float display_width, float shooting_y)
 {
 	*balls = calloc(sizeof(ball_t), 1);
-	*balls[0] = createball(display_width * 0.5, shooting_y);
+	*balls[0] = buildball(display_width * 0.5, shooting_y);
 }
 
 void destroy_balls(ball_t **balls, game_t *game)

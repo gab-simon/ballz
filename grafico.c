@@ -199,7 +199,7 @@ void draw_wait(window *win, ball_t *ball, int blocks[][7], game_t *game)
 	}
 }
 
-void draw_setup(window *win, ball_t *ball, int blocks[][COL], float off_set_y, game_t *game)
+void draw_serving(window *win, ball_t *ball, int blocks[][COL], float off_set_y, game_t *game)
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
@@ -213,7 +213,7 @@ void draw_setup(window *win, ball_t *ball, int blocks[][COL], float off_set_y, g
 	}
 }
 
-void draw_aim(window *win, ball_t *ball, float distX, float distY, float dist, int blocks[][COL], game_t *game)
+void draw_aim(window *win, ball_t *ball, float distance_x, float distance_y, float dist, int blocks[][COL], game_t *game)
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
@@ -223,7 +223,7 @@ void draw_aim(window *win, ball_t *ball, float distX, float distY, float dist, i
 		show_blocks(win, blocks, 0);
 		draw_count_balls(win, game);
 
-		al_draw_line(ball->x, ball->y, ball->x + (BALL_RADIUS + 400) * distX / dist, ball->y + (BALL_RADIUS + 400) * distY / dist, BRANCO, 2);
+		al_draw_line(ball->x, ball->y, ball->x + (BALL_RADIUS + 400) * distance_x / dist, ball->y + (BALL_RADIUS + 400) * distance_y / dist, BRANCO, 2);
 
 		draw_score(win, game);
 		al_flip_display();

@@ -52,10 +52,10 @@ float block_mid_x(float j, float l);
 float block_mid_y(float i, float l);
 float block_f_x(float j, float l);
 float block_f_y(float i, float l);
-ball_t *createball(float x, float y);
-void setup_game(game_t *game, float display_width);
-void setup_blocks(int blocks[][COL]);
-void setup_balls(ball_t ***balls, float display_width, float shooting_y);
+ball_t *buildball(float x, float y);
+void build_game(game_t *game, float display_width);
+void build_blocks(int blocks[][COL]);
+void build_balls(ball_t ***balls, float display_width, float shooting_y);
 void destroy_balls(ball_t **balls, game_t *game);
 
 #endif
