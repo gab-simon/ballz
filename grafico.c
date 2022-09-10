@@ -43,7 +43,7 @@ window graph_init(int res_width, int res_height)
 	al_start_timer(win.timer);
 
 	char font_path[100];
-	sprintf(font_path, "%s/utils/fonts/Minecraft.ttf", al_get_current_directory());
+	sprintf(font_path, "%s/resources/fonts/Minecraft.ttf", al_get_current_directory());
 	printf("font_path: %s\n", font_path);
 	fonts_t *fonts = malloc(sizeof(fonts_t));
 	fonts->big = al_load_font(font_path, 85, 0);
@@ -58,12 +58,12 @@ window graph_init(int res_width, int res_height)
 
 void draw_menu(window *win)
 {
-	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("resources/imgs/bg_menu.png");
 	al_draw_bitmap(bg_menu, 0, 0, 0);
 
 	al_draw_text(win->fonts->big, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTER, "BALLZ");
 
-	ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+	ALLEGRO_BITMAP *button = al_load_bitmap("resources/imgs/button.png");
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.8, 0);
 
@@ -75,19 +75,19 @@ void draw_menu(window *win)
 
 void draw_info(window *win, game_t *game)
 {
-	system("sort -nr -o utils/score_high.txt utils/score.txt");
+	system("sort -nr -o resources/score_high.txt resources/score.txt");
 
-	FILE *score = fopen("utils/score_high.txt", "r");
+	FILE *score = fopen("resources/score_high.txt", "r");
 	char line[256];
 	int i = 0;
 	char text[50];
 
-	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("resources/imgs/bg_menu.png");
 	al_draw_bitmap(bg_menu, 0, 0, 0);
 
 	al_draw_text(win->fonts->medium, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.1, ALLEGRO_ALIGN_CENTER, "RECORDES");
 
-	ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+	ALLEGRO_BITMAP *button = al_load_bitmap("resources/imgs/button.png");
 	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.2, 0);
 
 	al_draw_text(win->fonts->medium, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.23, ALLEGRO_ALIGN_CENTER, "MENU");
@@ -114,7 +114,7 @@ void draw_gameover(window *win, game_t *game)
 	{
 		char text[20];
 
-		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("resources/imgs/bg_menu.png");
 		al_draw_bitmap(bg_menu, 0, 0, 0);
 
 		al_draw_text(win->fonts->medium, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
@@ -128,7 +128,7 @@ void draw_gameover(window *win, game_t *game)
 
 		new_highscore(game);
 
-		ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+		ALLEGRO_BITMAP *button = al_load_bitmap("resources/imgs/button.png");
 		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
 		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.8, 0);
 
@@ -150,11 +150,12 @@ void show_blocks(window *win, int blocks[][7], float off_set_y)
 		{
 			if (blocks[i][j] > 0)
 			{
-				al_draw_filled_rectangle(block_i_x(j, l), block_i_y(i, l) + off_set_y, block_f_x(j, l), block_f_y(i, l) + off_set_y, al_map_rgb(10 * blocks[i][j] % 20, 50 * blocks[i][j] % 50, 100 * blocks[i][j] % 80));
 				char text[10];
-				int textOffset = al_get_font_line_height(win->fonts->small) / 2;
+				int textoff_set_y = al_get_font_line_height(win->fonts->small) / 2;
+				al_draw_filled_rectangle(block_i_x(j, l), block_i_y(i, l) + off_set_y, block_f_x(j, l), block_f_y(i, l) + off_set_y, 
+				blocks[i][j] <= 7 ? ROSA_CLARO : blocks[i][j] > 7 && blocks[i][j] < 12 ? ROSA_BRILHANTE : ROSA_PROFUNDO);
 				sprintf(text, "%d", blocks[i][j]);
-				al_draw_text(win->fonts->small, BRANCO, block_mid_x(j, l), block_mid_y(i, l) + off_set_y - textOffset, ALLEGRO_ALIGN_CENTER, text);
+				al_draw_text(win->fonts->small, BRANCO, block_mid_x(j, l), block_mid_y(i, l) + off_set_y - textoff_set_y, ALLEGRO_ALIGN_CENTER, text);
 			}
 			if (blocks[i][j] == -1)
 			{
@@ -188,7 +189,7 @@ void draw_wait(window *win, ball_t *ball, int blocks[][7], game_t *game)
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(ball->x, ball->y, BALL_RADIUS, BRANCO);
 		show_blocks(win, blocks, 0);
@@ -202,7 +203,7 @@ void draw_setup(window *win, ball_t *ball, int blocks[][COL], float off_set_y, g
 {
 	if (al_event_queue_is_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(ball->x, ball->y, BALL_RADIUS, BRANCO);
 		show_blocks(win, blocks, off_set_y);
@@ -216,7 +217,7 @@ void draw_aim(window *win, ball_t *ball, float distX, float distY, float dist, i
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		al_draw_filled_circle(ball->x, ball->y, BALL_RADIUS, BRANCO);
 		show_blocks(win, blocks, 0);
@@ -233,7 +234,7 @@ void draw_shoot(window *win, ball_t **balls, int ballsCount, int blocks[][COL], 
 {
 	if (al_is_event_queue_empty(win->event_queue))
 	{
-		ALLEGRO_BITMAP *bg_game = al_load_bitmap("utils/imgs/bg_game.png");
+		ALLEGRO_BITMAP *bg_game = al_load_bitmap("resources/imgs/bg_game.png");
 		al_draw_bitmap(bg_game, 0, 0, 0);
 		for (int i = 0; i < ballsCount; i++)
 		{
@@ -257,7 +258,7 @@ void new_highscore(game_t *game)
 	FILE *score;
 	char score_string[32];
 
-	score = fopen("utils/score.txt", "a");
+	score = fopen("resources/score.txt", "a");
 
 	if (score == NULL)
 	{

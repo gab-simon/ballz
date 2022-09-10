@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
 	int arrival_counter = 0;
 	int new_balls_count = 0;
 
-	float offset = 0;
+	float off_set_y = 0;
 
 	ALLEGRO_MOUSE_EVENT mouse_down;
 
-	ALLEGRO_SAMPLE *music_menu = al_load_sample("utils/sounds/sfx_menu.ogg");
-	ALLEGRO_SAMPLE *music_gameover = al_load_sample("utils/sounds/sfx_gameover.ogg");
-	ALLEGRO_SAMPLE *music_shot = al_load_sample("utils/sounds/sfx_wing.ogg");
+	ALLEGRO_SAMPLE *music_menu = al_load_sample("resources/sounds/sfx_menu.ogg");
+	ALLEGRO_SAMPLE *music_gameover = al_load_sample("resources/sounds/sfx_gameover.ogg");
+	ALLEGRO_SAMPLE *music_shot = al_load_sample("resources/sounds/sfx_wing.ogg");
 
 	ALLEGRO_SAMPLE_ID sfx_menu;
 	ALLEGRO_SAMPLE_ID sfx_gameover;
@@ -58,10 +58,10 @@ int main(int argc, char *argv[])
 	game.shooting_y = block_f_y(8, square_side) - BALL_RADIUS;
 
 	FILE *score_file;
-	score_file = fopen("utils/.highscore", "r");
+	score_file = fopen("resources/.highscore", "r");
 	if (score_file == NULL)
 	{
-		score_file = fopen("utils/.highscore", "w");
+		score_file = fopen("resources/.highscore", "w");
 		game.highscore = 0;
 	}
 	else
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 					arrival_counter = 0;
 					new_balls_count = 0;
 
-					offset = 0;
+					off_set_y = 0;
 				}
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.8 && ev.mouse.y < win.disp_data.height * 0.8 + 80)
 				{
@@ -176,14 +176,14 @@ int main(int argc, char *argv[])
 			}
 			if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
-				if (offset < (1.1 * square_side))
+				if (off_set_y < (1.1 * square_side))
 				{
-					draw_setup(&win, balls[0], blocks, offset, &game);
-					offset += 2;
+					draw_setup(&win, balls[0], blocks, off_set_y, &game);
+					off_set_y += 2;
 				}
 				else
 				{
-					offset = 0;
+					off_set_y = 0;
 					for (j = 0; j < COL; j++)
 					{
 						if (blocks[ROW - 1][j] > 0)
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
 						destroy_balls(balls, &game);
 						if (game.score >= game.highscore)
 						{
-							score_file = fopen("utils/.highscore", "w");
+							score_file = fopen("resources/.highscore", "w");
 							fprintf(score_file, "%d", game.score);
 							fclose(score_file);
 						}
@@ -238,7 +238,6 @@ int main(int argc, char *argv[])
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 			{
 				mouse_down = ev.mouse;
-
 				game.STATES = AIMING;
 			}
 			break;
@@ -260,9 +259,7 @@ int main(int argc, char *argv[])
 					can_shoot = false;
 				}
 				else
-				{
 					game.STATES = WAITING;
-				}
 			}
 			else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
 			{
@@ -293,9 +290,7 @@ int main(int argc, char *argv[])
 					balls = new_balls;
 
 					for (i = game.balls - new_balls_count; i < game.balls; i++)
-					{
 						balls[i] = createball(game.shooting_x, game.shooting_y);
-					}
 
 					new_balls_count = 0;
 					new_shots = false;
@@ -318,19 +313,13 @@ int main(int argc, char *argv[])
 					if (balls[i] != NULL)
 					{
 						if (balls[i]->x <= BALL_RADIUS)
-						{
 							balls[i]->dx = -balls[i]->dx;
-						}
 
 						if (balls[i]->x >= RES_WIDTH - BALL_RADIUS)
-						{
 							balls[i]->dx = -balls[i]->dx;
-						}
 
 						if (balls[i]->y <= BALL_RADIUS)
-						{
 							balls[i]->dy = -balls[i]->dy;
-						}
 
 						for (int c = 0; c < COL; c++)
 						{
@@ -406,13 +395,11 @@ int main(int argc, char *argv[])
 						if (arrival_counter > 0 && balls[i]->y >= game.shooting_y)
 						{
 							if (balls[i]->x > balls[0]->x)
-							{
 								balls[i]->x -= SPEED_FACTOR;
-							}
+
 							if (balls[i]->x < balls[0]->x)
-							{
 								balls[i]->x += SPEED_FACTOR;
-							}
+
 							if (balls[i]->x <= balls[0]->x + SPEED_FACTOR && balls[i]->x >= balls[0]->x - SPEED_FACTOR)
 							{
 								balls[i]->x = balls[0]->x;
@@ -443,9 +430,7 @@ int main(int argc, char *argv[])
 				{
 					game.STATES = SERVING;
 					setup_game(&game, RES_WIDTH);
-
 					setup_blocks(blocks);
-
 					setup_balls(&balls, RES_WIDTH, game.shooting_y);
 
 					menu_drew = false;
@@ -458,7 +443,7 @@ int main(int argc, char *argv[])
 					arrival_counter = 0;
 					new_balls_count = 0;
 
-					offset = 0;
+					off_set_y = 0;
 				}
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.75 && ev.mouse.y < win.disp_data.height * 0.75 + 80)
 				{
