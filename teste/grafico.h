@@ -9,7 +9,7 @@
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_primitives.h>
 
-#include "game_helpers.h"
+#include "utils.h"
 
 
 typedef struct {
@@ -32,10 +32,10 @@ window graph_init(int res_width, int res_height);
 
 void draw_menu(window *win);
 void draw_info(window *win, game_t *game);
-void draw_setup(window *win, bouncer_t *bouncer, int squares[][COL], float offsetY, game_t *game);
-void draw_wait(window *win, bouncer_t *bouncer, int squares[][COL], game_t *game);
-void draw_aim(window *win, bouncer_t *bouncer, float distX, float distY, float dist, int squares[][COL], game_t *game);
-void draw_shoot(window *win, bouncer_t **bouncer, int balls, int squares[][COL], game_t *game);
+void draw_setup(window *win, ball_t *ball, int blocks[][COL], float offsetY, game_t *game);
+void draw_wait(window *win, ball_t *ball, int blocks[][COL], game_t *game);
+void draw_aim(window *win, ball_t *ball, float distX, float distY, float dist, int blocks[][COL], game_t *game);
+void draw_shoot(window *win, ball_t **ball, int balls, int blocks[][COL], game_t *game);
 void draw_gameover(window *win, game_t *game);
 void new_highscore(game_t *game);
 

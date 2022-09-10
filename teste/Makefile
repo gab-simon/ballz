@@ -1,7 +1,7 @@
 
 CFLAGS = -I . $(INCDIR) -std=c99 -Wall
 EXEC_NAME =ballz
-OBJS =ballz.o grafico.o game_helpers.o
+OBJS =ballz.o grafico.o utils.o
 ALLEGRO =-lallegro_image -lallegro_primitives -lallegro_dialog -lallegro_ttf -lallegro_font -lallegro -lallegro_main -lallegro_audio -lallegro_acodec
 LIBS =-lm $(ALLEGRO)
 CC =gcc
@@ -16,7 +16,7 @@ $(EXEC_NAME): $(OBJS)
 
 ballz.o: ballz.c
 grafico.o: grafico.c grafico.h
-game_helpers.o: game_helpers.c game_helpers.h
+utils.o: utils.c utils.h
 
 clean:
 	rm -f *.o *.bak *~

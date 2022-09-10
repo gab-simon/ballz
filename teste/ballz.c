@@ -34,30 +34,28 @@ int main(int argc, char *argv[])
 	int launch_interval = 0;
 	int launch_index = 0;
 	int arrival_counter = 0;
-	int new_bouncers_count = 0;
+	int new_balls_count = 0;
 
 	float offset = 0;
 
 	ALLEGRO_MOUSE_EVENT mouse_down;
 
 	ALLEGRO_SAMPLE *music_menu = al_load_sample("utils/sounds/sfx_menu.ogg");
-	ALLEGRO_SAMPLE *music_game = al_load_sample("utils/sounds/sfx_game.ogg");
 	ALLEGRO_SAMPLE *music_gameover = al_load_sample("utils/sounds/sfx_gameover.ogg");
 	ALLEGRO_SAMPLE *music_shot = al_load_sample("utils/sounds/sfx_wing.ogg");
 
 	ALLEGRO_SAMPLE_ID sfx_menu;
-	ALLEGRO_SAMPLE_ID sfx_game;
 	ALLEGRO_SAMPLE_ID sfx_gameover;
 	ALLEGRO_SAMPLE_ID sfx_shot;
-
-	al_reserve_samples(1);
+	al_reserve_samples(3);
 
 	float square_side = RES_WIDTH / 7.8;
 
 	game_t game;
-	int squares[ROW][COL];
-	bouncer_t **bouncers;
-	game.shooting_y = calc_square_f_y(8, square_side) - BOUNCER_RADIUS;
+	int blocks[ROW][COL];
+
+	ball_t **balls;
+	game.shooting_y = block_f_y(8, square_side) - BALL_RADIUS;
 
 	FILE *score_file;
 	score_file = fopen(".highscore", "r");
@@ -79,8 +77,8 @@ int main(int argc, char *argv[])
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(win.event_queue, &ev);
 
-		int dist_x;
-		int dist_y;
+		int distance_x;
+		int distance_y;
 		float dist;
 
 		switch (game.STATES)
@@ -91,7 +89,7 @@ int main(int argc, char *argv[])
 				draw_menu(&win);
 				menu_drew = true;
 				info_drew = false;
-				al_play_sample(music_menu, 1.0, 0.0, 1.2, ALLEGRO_PLAYMODE_LOOP, &sfx_menu);
+				al_play_sample(music_menu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 			}
 
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -103,12 +101,13 @@ int main(int argc, char *argv[])
 			{
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 80)
 				{
-					game.STATES = SETUP;
+					al_stop_sample(&sfx_menu);
+					game.STATES = SERVING;
 					setup_game(&game, RES_WIDTH);
 
-					setup_squares(squares);
+					setup_blocks(blocks);
 
-					setup_bouncers(&bouncers, RES_WIDTH, game.shooting_y);
+					setup_balls(&balls, RES_WIDTH, game.shooting_y);
 
 					menu_drew = false;
 					can_shoot = false;
@@ -118,12 +117,13 @@ int main(int argc, char *argv[])
 					launch_interval = 0;
 					launch_index = 0;
 					arrival_counter = 0;
-					new_bouncers_count = 0;
+					new_balls_count = 0;
 
 					offset = 0;
 				}
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.8 && ev.mouse.y < win.disp_data.height * 0.8 + 80)
 				{
+					al_stop_sample(&sfx_menu);
 					game.STATES = INFO;
 				}
 			}
@@ -136,6 +136,11 @@ int main(int argc, char *argv[])
 				info_drew = true;
 				menu_drew = false;
 			}
+			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			{
+				if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+					game.STATES = MENU;
+			}
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.4 && ev.mouse.y < win.disp_data.height * 0.4 + 80)
@@ -146,9 +151,7 @@ int main(int argc, char *argv[])
 
 			break;
 
-		case SETUP:
-			al_play_sample(music_game, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &sfx_game);
-
+		case SERVING:
 			if (!new_blocks)
 			{
 				game.score++;
@@ -158,17 +161,17 @@ int main(int argc, char *argv[])
 				}
 				for (j = 0; j < COL; j++)
 				{
-					squares[0][j] = (rand() % 3) * game.score;
+					blocks[0][j] = (rand() % 3) * game.score;
 				}
 				if (game.score > 1)
 				{
 					int newBallPosition = rand() % COL;
-					squares[0][newBallPosition] = -1;
+					blocks[0][newBallPosition] = -1;
 				}
 				if (game.score >= 5 && ovosecreto)
 				{
-					int newBallPosition = rand() % COL;
-					squares[0][newBallPosition] = -2;
+					int newBallPosition = rand() % COL - 3;
+					blocks[0][newBallPosition] = -2;
 				}
 				new_blocks = true;
 			}
@@ -176,7 +179,7 @@ int main(int argc, char *argv[])
 			{
 				if (offset < (1.1 * square_side))
 				{
-					draw_setup(&win, bouncers[0], squares, offset, &game);
+					draw_setup(&win, balls[0], blocks, offset, &game);
 					offset += 2;
 				}
 				else
@@ -184,7 +187,7 @@ int main(int argc, char *argv[])
 					offset = 0;
 					for (j = 0; j < COL; j++)
 					{
-						if (squares[ROW - 1][j] > 0)
+						if (blocks[ROW - 1][j] > 0)
 						{
 							game.STATES = GAMEOVER;
 						}
@@ -195,19 +198,19 @@ int main(int argc, char *argv[])
 						{
 							for (j = 0; j < COL; j++)
 							{
-								squares[i][j] = squares[i - 1][j];
+								blocks[i][j] = blocks[i - 1][j];
 							}
 						}
 						for (j = 0; j < COL; j++)
 						{
-							squares[0][j] = 0;
+							blocks[0][j] = 0;
 						};
 						game.STATES = WAITING;
-						draw_wait(&win, bouncers[0], squares, &game);
+						draw_wait(&win, balls[0], blocks, &game);
 					}
 					else
 					{
-						destroy_bouncers(bouncers, &game);
+						destroy_balls(balls, &game);
 						if (game.score >= game.highscore)
 						{
 							score_file = fopen(".highscore", "w");
@@ -224,13 +227,14 @@ int main(int argc, char *argv[])
 		case WAITING:
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
-				if (ev.keyboard.keycode == ALLEGRO_KEY_O && game.score >= 2)
+				if (ev.keyboard.keycode == ALLEGRO_KEY_O)
 				{
+					al_show_native_message_box(win.display, "CHEAT", "CHEAT MODE ON", "Acerte os circulos amarelos para ganhar mais 3 bolas!", NULL, 0);
 					ovosecreto = true;
 				}
 				if (ev.keyboard.keycode == ALLEGRO_KEY_H)
 				{
-					al_show_native_message_box(win.display, "Instruções", "TEste textoo textooo uma um texto aqui um textooo", "textooo", NULL, NULL);
+					al_show_native_message_box(win.display, "Instruções", "TEste textoo textooo uma um texto aqui um textooo", "textooo", NULL, 0);
 				}
 			}
 
@@ -243,16 +247,16 @@ int main(int argc, char *argv[])
 			break;
 
 		case AIMING:
-			dist_x = (mouse_down.x - ev.mouse.x);
-			dist_y = (mouse_down.y - ev.mouse.y);
-			dist = sqrt(pow(dist_x, 2) + pow(dist_y, 2));
+			distance_x = (mouse_down.x - ev.mouse.x);
+			distance_y = (mouse_down.y - ev.mouse.y);
+			dist = sqrt(pow(distance_x, 2) + pow(distance_y, 2));
 
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
 				if (can_shoot)
 				{
-					game.dx = SPEED_FACTOR * (dist_x) / dist;
-					game.dy = SPEED_FACTOR * (dist_y) / dist;
+					game.dx = SPEED_FACTOR * (distance_x) / dist;
+					game.dy = SPEED_FACTOR * (distance_y) / dist;
 
 					al_play_sample(music_shot, 2.0, 0.0, 1.2, ALLEGRO_PLAYMODE_ONCE, &sfx_shot);
 					game.STATES = SHOOTING;
@@ -265,14 +269,14 @@ int main(int argc, char *argv[])
 			}
 			else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
 			{
-				if ((dist > BOUNCER_RADIUS) && (fabs((float)dist_y / dist_x) > 0.06) && (dist_y < 0))
+				if ((dist > BALL_RADIUS) && (fabs((float)distance_y / distance_x) > 0.06) && (distance_y < 0))
 				{
-					draw_aim(&win, bouncers[0], dist_x, dist_y, dist, squares, &game);
+					draw_aim(&win, balls[0], distance_x, distance_y, dist, blocks, &game);
 					can_shoot = true;
 				}
 				else
 				{
-					draw_wait(&win, bouncers[0], squares, &game);
+					draw_wait(&win, balls[0], blocks, &game);
 					can_shoot = false;
 				}
 			}
@@ -283,74 +287,74 @@ int main(int argc, char *argv[])
 			{
 				if (new_shots)
 				{
-					bouncer_t **new_bouncers = realloc(bouncers, sizeof(bouncer_t) * game.bouncers);
-					if (new_bouncers == NULL)
+					ball_t **new_balls = realloc(balls, sizeof(ball_t) * game.balls);
+					if (new_balls == NULL)
 					{
-						perror("Error reallocking bouncers");
+						perror("Error reallocking balls");
 						exit(1);
 					}
-					bouncers = new_bouncers;
+					balls = new_balls;
 
-					for (i = game.bouncers - new_bouncers_count; i < game.bouncers; i++)
+					for (i = game.balls - new_balls_count; i < game.balls; i++)
 					{
-						bouncers[i] = createBouncer(game.shooting_x, game.shooting_y);
+						balls[i] = createball(game.shooting_x, game.shooting_y);
 					}
 
-					new_bouncers_count = 0;
+					new_balls_count = 0;
 					new_shots = false;
 				}
 
 				launch_interval++;
-				if (launch_interval >= 5 && launch_index < game.bouncers)
+				if (launch_interval >= 5 && launch_index < game.balls)
 				{
 					launch_interval = 0;
-					bouncers[launch_index]->x = game.shooting_x;
-					bouncers[launch_index]->y = game.shooting_y;
-					bouncers[launch_index]->dx = game.dx;
-					bouncers[launch_index]->dy = game.dy;
-					game.thrown_bouncers += 1;
+					balls[launch_index]->x = game.shooting_x;
+					balls[launch_index]->y = game.shooting_y;
+					balls[launch_index]->dx = game.dx;
+					balls[launch_index]->dy = game.dy;
+					game.thrown_balls += 1;
 					launch_index++;
 				}
 
 				for (i = 0; i < launch_index; i++)
 				{
-					if (bouncers[i] != NULL)
+					if (balls[i] != NULL)
 					{
-						if (bouncers[i]->x <= BOUNCER_RADIUS)
+						if (balls[i]->x <= BALL_RADIUS)
 						{
-							bouncers[i]->dx = -bouncers[i]->dx;
+							balls[i]->dx = -balls[i]->dx;
 						}
 
-						if (bouncers[i]->x >= RES_WIDTH - BOUNCER_RADIUS)
+						if (balls[i]->x >= RES_WIDTH - BALL_RADIUS)
 						{
-							bouncers[i]->dx = -bouncers[i]->dx;
+							balls[i]->dx = -balls[i]->dx;
 						}
 
-						if (bouncers[i]->y <= BOUNCER_RADIUS)
+						if (balls[i]->y <= BALL_RADIUS)
 						{
-							bouncers[i]->dy = -bouncers[i]->dy;
+							balls[i]->dy = -balls[i]->dy;
 						}
 
 						for (int c = 0; c < COL; c++)
 						{
-							if (calc_square_i_x(c, square_side) <= bouncers[i]->x && calc_square_f_x(c, square_side) >= bouncers[i]->x)
+							if (block_i_x(c, square_side) <= balls[i]->x && block_f_x(c, square_side) >= balls[i]->x)
 							{
 								for (int l = 1; l < ROW; l++)
 								{
-									if (squares[l][c] > 0 && calc_square_i_y(l, square_side) <= bouncers[i]->y + BOUNCER_RADIUS && calc_square_f_y(l, square_side) >= bouncers[i]->y - BOUNCER_RADIUS)
+									if (blocks[l][c] > 0 && block_i_y(l, square_side) <= balls[i]->y + BALL_RADIUS && block_f_y(l, square_side) >= balls[i]->y - BALL_RADIUS)
 									{
-										bouncers[i]->dy = -bouncers[i]->dy;
-										squares[l][c]--;
+										balls[i]->dy = -balls[i]->dy;
+										blocks[l][c]--;
 									}
-									if ((squares[l][c] < 0 && squares[l][c] == -1) && calc_square_mid_y(l, square_side) <= bouncers[i]->y + 2 * BOUNCER_RADIUS && calc_square_mid_y(l, square_side) >= bouncers[i]->y - 2 * BOUNCER_RADIUS)
+									if ((blocks[l][c] < 0 && blocks[l][c] == -1) && block_mid_y(l, square_side) <= balls[i]->y + 2 * BALL_RADIUS && block_mid_y(l, square_side) >= balls[i]->y - 2 * BALL_RADIUS)
 									{
-										squares[l][c] = 0;
-										new_bouncers_count++;
+										blocks[l][c] = 0;
+										new_balls_count++;
 									}
-									if ((squares[l][c] < 0 && squares[l][c] == -2) && calc_square_mid_y(l, square_side) <= bouncers[i]->y + 2 * BOUNCER_RADIUS && calc_square_mid_y(l, square_side) >= bouncers[i]->y - 2 * BOUNCER_RADIUS)
+									if ((blocks[l][c] < 0 && blocks[l][c] == -2) && block_mid_y(l, square_side) <= balls[i]->y + 2 * BALL_RADIUS && block_mid_y(l, square_side) >= balls[i]->y - 2 * BALL_RADIUS)
 									{
-										squares[l][c] = 0;
-										game.score+=5;
+										blocks[l][c] = 0;
+										new_balls_count += 3;
 									}
 								}
 							}
@@ -358,73 +362,73 @@ int main(int argc, char *argv[])
 
 						for (int l = 0; l < ROW; l++)
 						{
-							if (calc_square_i_y(l, square_side) <= bouncers[i]->y && calc_square_f_y(l, square_side) >= bouncers[i]->y)
+							if (block_i_y(l, square_side) <= balls[i]->y && block_f_y(l, square_side) >= balls[i]->y)
 							{
 								for (int c = 1; c < COL; c++)
 								{
-									if (squares[l][c] > 0 && calc_square_i_x(c, square_side) <= bouncers[i]->x + BOUNCER_RADIUS && calc_square_f_x(c, square_side) >= bouncers[i]->x - BOUNCER_RADIUS)
+									if (blocks[l][c] > 0 && block_i_x(c, square_side) <= balls[i]->x + BALL_RADIUS && block_f_x(c, square_side) >= balls[i]->x - BALL_RADIUS)
 									{
-										bouncers[i]->dx = -bouncers[i]->dx;
-										squares[l][c]--;
+										balls[i]->dx = -balls[i]->dx;
+										blocks[l][c]--;
 									}
-									if (squares[l][c] < 0 && calc_square_mid_x(c, square_side) <= bouncers[i]->x + 2 * BOUNCER_RADIUS && calc_square_mid_x(c, square_side) >= bouncers[i]->x - 2 * BOUNCER_RADIUS)
+									if (blocks[l][c] < 0 && block_mid_x(c, square_side) <= balls[i]->x + 2 * BALL_RADIUS && block_mid_x(c, square_side) >= balls[i]->x - 2 * BALL_RADIUS)
 									{
-										squares[l][c] = 0;
-										new_bouncers_count++;
+										blocks[l][c] = 0;
+										new_balls_count++;
 									}
 								}
 							}
 						}
 
-						bouncers[i]->x += bouncers[i]->dx;
-						bouncers[i]->y += bouncers[i]->dy;
+						balls[i]->x += balls[i]->dx;
+						balls[i]->y += balls[i]->dy;
 
-						draw_shoot(&win, bouncers, game.bouncers, squares, &game);
+						draw_shoot(&win, balls, game.balls, blocks, &game);
 
-						if ((bouncers[i]->dy > 0) && (bouncers[i]->y >= game.shooting_y))
+						if ((balls[i]->dy > 0) && (balls[i]->y >= game.shooting_y))
 						{
 							arrival_counter++;
-							bouncers[i]->dx = 0;
-							bouncers[i]->dy = 0;
+							balls[i]->dx = 0;
+							balls[i]->dy = 0;
 
 							if (arrival_counter == 1)
 							{
-								bouncer_t *auxBouncer = bouncers[i];
-								bouncers[i] = bouncers[0];
-								bouncers[0] = auxBouncer;
+								ball_t *auxball = balls[i];
+								balls[i] = balls[0];
+								balls[0] = auxball;
 							}
 
-							if (arrival_counter == game.bouncers)
+							if (arrival_counter == game.balls)
 							{
-								bouncer_t *auxBouncer = bouncers[i];
-								bouncers[i] = bouncers[game.bouncers - 1];
-								bouncers[game.bouncers - 1] = auxBouncer;
+								ball_t *auxball = balls[i];
+								balls[i] = balls[game.balls - 1];
+								balls[game.balls - 1] = auxball;
 							}
 						}
 
-						if (arrival_counter > 0 && bouncers[i]->y >= game.shooting_y)
+						if (arrival_counter > 0 && balls[i]->y >= game.shooting_y)
 						{
-							if (bouncers[i]->x > bouncers[0]->x)
+							if (balls[i]->x > balls[0]->x)
 							{
-								bouncers[i]->x -= SPEED_FACTOR;
+								balls[i]->x -= SPEED_FACTOR;
 							}
-							if (bouncers[i]->x < bouncers[0]->x)
+							if (balls[i]->x < balls[0]->x)
 							{
-								bouncers[i]->x += SPEED_FACTOR;
+								balls[i]->x += SPEED_FACTOR;
 							}
-							if (bouncers[i]->x <= bouncers[0]->x + SPEED_FACTOR && bouncers[i]->x >= bouncers[0]->x - SPEED_FACTOR)
+							if (balls[i]->x <= balls[0]->x + SPEED_FACTOR && balls[i]->x >= balls[0]->x - SPEED_FACTOR)
 							{
-								bouncers[i]->x = bouncers[0]->x;
+								balls[i]->x = balls[0]->x;
 
-								if (arrival_counter == game.bouncers && i == game.bouncers - 1)
+								if (arrival_counter == game.balls && i == game.balls - 1)
 								{
-									game.STATES = SETUP;
-									new_shots = (new_bouncers_count > 0);
-									game.bouncers += new_bouncers_count;
+									game.STATES = SERVING;
+									new_shots = (new_balls_count > 0);
+									game.balls += new_balls_count;
 
 									launch_index = 0;
-									game.thrown_bouncers = 0;
-									game.shooting_x = bouncers[0]->x;
+									game.thrown_balls = 0;
+									game.shooting_x = balls[0]->x;
 									arrival_counter = 0;
 								}
 							}
@@ -435,19 +439,17 @@ int main(int argc, char *argv[])
 			break;
 
 		case GAMEOVER:
-			// al_stop_sample(&sfx_game);
-			// al_play_sample(music_gameover, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &sfx_gameover);
+			al_play_sample(music_gameover, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, &sfx_gameover);
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
 			{
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.6 && ev.mouse.y < win.disp_data.height * 0.6 + 80)
 				{
-					// al_stop_sample(&sfx_gameover);
-					game.STATES = SETUP;
+					game.STATES = SERVING;
 					setup_game(&game, RES_WIDTH);
 
-					setup_squares(squares);
+					setup_blocks(blocks);
 
-					setup_bouncers(&bouncers, RES_WIDTH, game.shooting_y);
+					setup_balls(&balls, RES_WIDTH, game.shooting_y);
 
 					menu_drew = false;
 					can_shoot = false;
@@ -457,13 +459,12 @@ int main(int argc, char *argv[])
 					launch_interval = 0;
 					launch_index = 0;
 					arrival_counter = 0;
-					new_bouncers_count = 0;
+					new_balls_count = 0;
 
 					offset = 0;
 				}
 				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.75 && ev.mouse.y < win.disp_data.height * 0.75 + 80)
 				{
-					// al_stop_sample(&sfx_gameover);
 					menu_drew = false;
 					game.STATES = MENU;
 				}
@@ -480,11 +481,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	destroy_bouncers(bouncers, &game);
+	destroy_balls(balls, &game);
 	al_destroy_sample(music_menu);
 	al_destroy_sample(music_gameover);
 	al_destroy_sample(music_shot);
-	al_destroy_sample(music_game);
 	graph_deinit(win);
 	return 0;
 }
