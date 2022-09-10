@@ -58,10 +58,10 @@ int main(int argc, char *argv[])
 	game.shooting_y = block_f_y(8, square_side) - BALL_RADIUS;
 
 	FILE *score_file;
-	score_file = fopen("resources/.highscore", "r");
+	score_file = fopen("resources/highscore.txt", "r");
 	if (score_file == NULL)
 	{
-		score_file = fopen("resources/.highscore", "w");
+		score_file = fopen("resources/highscore.txt", "w");
 		game.highscore = 0;
 	}
 	else
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 						destroy_balls(balls, &game);
 						if (game.score >= game.highscore)
 						{
-							score_file = fopen("resources/.highscore", "w");
+							score_file = fopen("resources/highscore.txt", "w");
 							fprintf(score_file, "%d", game.score);
 							fclose(score_file);
 						}
