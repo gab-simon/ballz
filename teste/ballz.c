@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 	int i, j;
 
 	bool menu_drew = false;
+	bool info_drew = false;
 	bool can_shoot = false;
 	bool new_blocks = false;
 	bool new_shots = false;
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
 	ALLEGRO_SAMPLE_ID sfx_gameover;
 	ALLEGRO_SAMPLE_ID sfx_shot;
 
- 	al_reserve_samples(1);
+	al_reserve_samples(1);
 
 	float square_side = RES_WIDTH / 7.8;
 
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
 			{
 				draw_menu(&win);
 				menu_drew = true;
+				info_drew = false;
 				al_play_sample(music_menu, 1.0, 0.0, 1.2, ALLEGRO_PLAYMODE_LOOP, &sfx_menu);
 			}
 
@@ -119,7 +121,28 @@ int main(int argc, char *argv[])
 
 					offset = 0;
 				}
+				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.8 && ev.mouse.y < win.disp_data.height * 0.8 + 80)
+				{
+					game.STATES = INFO;
+				}
 			}
+			break;
+
+		case INFO:
+			if (!info_drew)
+			{
+				draw_info(&win);
+				info_drew = true;
+				menu_drew = false;
+			}
+			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+			{
+				if (ev.mouse.x > RES_WIDTH * 0.5 - 160 && ev.mouse.x < RES_WIDTH * 0.5 + 160 && ev.mouse.y > win.disp_data.height * 0.4 && ev.mouse.y < win.disp_data.height * 0.4 + 80)
+				{
+					game.STATES = MENU;
+				}
+			}
+
 			break;
 
 		case SETUP:
@@ -222,7 +245,7 @@ int main(int argc, char *argv[])
 					game.dx = SPEED_FACTOR * (dist_x) / dist;
 					game.dy = SPEED_FACTOR * (dist_y) / dist;
 
-					al_play_sample(music_shot, 1.0, 0.0, 1.2, ALLEGRO_PLAYMODE_ONCE, &sfx_shot);
+					al_play_sample(music_shot, 2.0, 0.0, 1.2, ALLEGRO_PLAYMODE_ONCE, &sfx_shot);
 					game.STATES = SHOOTING;
 					can_shoot = false;
 				}

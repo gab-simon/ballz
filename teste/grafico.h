@@ -31,11 +31,14 @@ typedef struct {
 window graph_init(int res_width, int res_height);
 
 void draw_menu(window *win);
+void draw_info(window *win);
 void draw_setup(window *win, bouncer_t *bouncer, int squares[][COL], float offsetY, game_t *game);
 void draw_wait(window *win, bouncer_t *bouncer, int squares[][COL], game_t *game);
 void draw_aim(window *win, bouncer_t *bouncer, float distX, float distY, float dist, int squares[][COL], game_t *game);
 void draw_shoot(window *win, bouncer_t **bouncer, int balls, int squares[][COL], game_t *game);
 void draw_gameover(window *win, game_t *game);
+void new_highscore(game_t *game);
+char *top_highscores();
 
 /* Finaliza sistema grafico Allegro 5.0 */
 void graph_deinit(window win);

@@ -11,6 +11,7 @@
 #define COL 7
 typedef enum {
    MENU,
+   INFO,
    SETUP,
    WAITING,
    AIMING,

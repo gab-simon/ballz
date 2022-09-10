@@ -10,6 +10,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
+#define MAX_LINES 128
+
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 window graph_init(int res_width, int res_height)
@@ -33,7 +35,7 @@ window graph_init(int res_width, int res_height)
 	win.timer = al_create_timer(1.0 / win.disp_data.refresh_rate);
 
 	// music_menu = al_load_audio_stream("utils/sounds/music.ogg", 4, 1024);
-    // al_attach_audio_stream_to_mixer(music_menu, al_get_default_mixer());
+	// al_attach_audio_stream_to_mixer(music_menu, al_get_default_mixer());
 
 	// al_set_audio_stream_playing(music_menu, true);
 
@@ -96,6 +98,35 @@ void draw_menu(window *win)
 	al_flip_display();
 }
 
+void draw_info(window *win)
+{
+	FILE* score = fopen("utils/score.txt", "r"); /* should check the result */
+    char line[256];
+	int i = 1;
+
+	ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
+	al_draw_bitmap(bg_menu, 0, 0, 0);
+
+	al_draw_text(win->fonts->title_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTER, "INFO");
+
+	ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
+	al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.4, 0);
+
+	al_draw_text(win->fonts->medium_font, PRETO, win->disp_data.width * 0.5, win->disp_data.height * 0.43, ALLEGRO_ALIGN_CENTER, "MENU");
+
+	al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.55, ALLEGRO_ALIGN_CENTER, "10 melhores pontuacoes");
+
+
+    while (fgets(line, sizeof(line), score)) {
+        al_draw_text(win->fonts->small_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.60 + (25 * i), ALLEGRO_ALIGN_CENTER, line);
+        printf("%s", line);
+		i++;
+    }
+
+	al_flip_display();
+    fclose(score);
+}
+
 void show_blocks(window *win, int squares[][7], float offsetY)
 {
 	float l = calc_square_side(win->disp_data.width);
@@ -106,7 +137,7 @@ void show_blocks(window *win, int squares[][7], float offsetY)
 		{
 			if (squares[i][j] > 0)
 			{
-				al_draw_filled_rectangle(calc_square_i_x(j, l), calc_square_i_y(i, l) + offsetY, calc_square_f_x(j, l), calc_square_f_y(i, l) + offsetY, al_map_rgb(240 - 3 * squares[i][j]%80, 172 - 3 * squares[i][j]%57, 46 + 3 * squares[i][j]%70));
+				al_draw_filled_rectangle(calc_square_i_x(j, l), calc_square_i_y(i, l) + offsetY, calc_square_f_x(j, l), calc_square_f_y(i, l) + offsetY, al_map_rgb(240 - 3 * squares[i][j] % 80, 172 - 3 * squares[i][j] % 57, 46 + 3 * squares[i][j] % 70));
 				char text[10];
 				int textOffset = al_get_font_line_height(win->fonts->small_font) / 2;
 				sprintf(text, "%d", squares[i][j]);
@@ -203,6 +234,64 @@ void draw_shoot(window *win, bouncer_t **bouncers, int bouncersCount, int square
 	}
 }
 
+char *top_highscores()
+{
+	FILE *score;
+	char line[32];
+	int counter = 0;
+	size_t len = 0;
+	ssize_t read;
+	char *strArray = malloc (sizeof (char) * 32);
+
+	score = fopen("utils/score.txt", "r");
+
+	if (score == NULL)
+	{
+		printf("erro ao abrir arquivo");
+	}
+
+	while ((read = getline(&line, &len, score)) != -1) // loop thru lines and add them to the strArray
+        {
+            int i = 0;
+            while(line[i] != '\n'){ // loop thru the characters in the current line
+                strArray[counter] = line[i];
+                i++;
+            }
+            
+            counter++;//counts the number of lines in the file
+         
+        }
+
+	char temp[30];
+
+	fclose(score);
+
+	return strArray;
+
+}
+
+void new_highscore(game_t *game)
+{
+	FILE *score;
+	// char buffer[MAX_LINES];
+	char score_string[32];
+
+	score = fopen("utils/score.txt", "a");
+
+	if (score == NULL)
+	{
+		printf("erro ao abrir arquivo");
+	}
+
+	sprintf(score_string, "%d", game->score);
+
+	// fgets(game->highscore, MAX_LINES, stdin);
+	fputs(score_string, score);
+	fputs("\n", score);
+
+	fclose(score);
+}
+
 void draw_gameover(window *win, game_t *game)
 {
 	if (al_is_event_queue_empty(win->event_queue))
@@ -211,7 +300,7 @@ void draw_gameover(window *win, game_t *game)
 
 		ALLEGRO_BITMAP *bg_menu = al_load_bitmap("utils/imgs/bg_menu.png");
 		al_draw_bitmap(bg_menu, 0, 0, 0);
-		
+
 		al_draw_text(win->fonts->big_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.2, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
 		sprintf(text, "Pontuacao: %d", game->score);
 		al_draw_text(win->fonts->medium_font, BRANCO, win->disp_data.width * 0.5, win->disp_data.height * 0.4, ALLEGRO_ALIGN_CENTRE, text);
@@ -220,6 +309,8 @@ void draw_gameover(window *win, game_t *game)
 		{
 			al_draw_text(win->fonts->small_font, VERDE_CLARO, win->disp_data.width * 0.5, win->disp_data.height * 0.5, ALLEGRO_ALIGN_CENTRE, "New Highscore!");
 		}
+
+		new_highscore(game);
 
 		ALLEGRO_BITMAP *button = al_load_bitmap("utils/imgs/button.png");
 		al_draw_bitmap(button, (win->disp_data.width - al_get_bitmap_width(button)) * 0.5, win->disp_data.height * 0.6, 0);
