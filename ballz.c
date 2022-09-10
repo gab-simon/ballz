@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
 	ALLEGRO_SAMPLE *music_menu = al_load_sample("resources/sounds/sfx_menu.ogg");
 	ALLEGRO_SAMPLE *music_gameover = al_load_sample("resources/sounds/sfx_gameover.ogg");
-	ALLEGRO_SAMPLE *music_shot = al_load_sample("resources/sounds/sfx_wing.ogg");
+	ALLEGRO_SAMPLE *music_shot = al_load_sample("resources/sounds/sfx_ballshot.wav");
 
 	ALLEGRO_SAMPLE_ID sfx_menu;
 	ALLEGRO_SAMPLE_ID sfx_gameover;
